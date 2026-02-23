@@ -1,0 +1,653 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { toast } from "sonner"
+import { Save, Eye, Loader2 } from "lucide-react"
+import { defaultHomeContent } from "@/lib/default-content"
+import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation } from "@/lib/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ImageUpload } from "@/components/admin/ImageUpload"
+
+export default function HomePageEditor() {
+  const [content, setContent] = useState<HomePageContent | null>(null)
+  const [header, setHeader] = useState<HeaderContent>(defaultHomeContent.header)
+  const [concept, setConcept] = useState<ConceptSection>(defaultHomeContent.concept)
+  const [whyChoose, setWhyChoose] = useState<WhyChooseSection>(defaultHomeContent.whyChoose)
+  const [footer, setFooter] = useState<FooterContent>(defaultHomeContent.footer)
+  const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>(
+    defaultHomeContent.carouselSettings || { heroAnimation: "fade", projectsAnimation: "fade", autoPlaySpeed: 6000 }
+  )
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // Fetch content on mount
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const res = await fetch("/api/content/home")
+        if (res.ok) {
+          const data = await res.json()
+          setContent(data)
+          setHeader(data.header)
+          setConcept(data.concept)
+          setWhyChoose(data.whyChoose)
+          setFooter(data.footer)
+          if (data.carouselSettings) {
+            setCarouselSettings(data.carouselSettings)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch content:", error)
+        toast.error("Failed to load content")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchContent()
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const updatedContent = {
+        ...content,
+        header,
+        concept,
+        whyChoose,
+        footer,
+        carouselSettings,
+      }
+      
+      const res = await fetch("/api/content/home", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedContent),
+      })
+      
+      if (res.ok) {
+        toast.success("Changes saved successfully!")
+      } else {
+        toast.error("Failed to save changes")
+      }
+    } catch (error) {
+      toast.error("Failed to save changes")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-gold" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Home Page Editor</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage all sections of your home page
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" asChild>
+            <a href="/" target="_blank" rel="noopener noreferrer">
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </a>
+          </Button>
+          <Button onClick={handleSave} disabled={saving} className="bg-gold hover:bg-gold-dark text-white">
+            <Save className="w-4 h-4 mr-2" />
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="header" className="space-y-6">
+        <TabsList className="bg-white border">
+          <TabsTrigger value="header">Header/Logo</TabsTrigger>
+          <TabsTrigger value="concept">Our Concept</TabsTrigger>
+          <TabsTrigger value="whychoose">Why Choose</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel Settings</TabsTrigger>
+          <TabsTrigger value="footer">Footer</TabsTrigger>
+        </TabsList>
+
+        {/* Header Section */}
+        <TabsContent value="header">
+          <Card>
+            <CardHeader>
+              <CardTitle>Header / Navigation</CardTitle>
+              <CardDescription>
+                Edit header logo and navigation links
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <ImageUpload
+                  label="Logo"
+                  value={header.logo}
+                  onChange={(url) => setHeader({ ...header, logo: url })}
+                  folder="branding"
+                  aspectRatio="auto"
+                />
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Upload your company logo. Recommended size: 200x60px or similar aspect ratio.
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Navigation Items</h3>
+                <div className="space-y-4">
+                  {header.navigation.map((item, index) => (
+                    <div key={`nav-${index}`} className="flex gap-4 items-center">
+                      <Input
+                        value={item.label}
+                        onChange={(e) => {
+                          const newNav = [...header.navigation]
+                          newNav[index] = { ...item, label: e.target.value }
+                          setHeader({ ...header, navigation: newNav })
+                        }}
+                        placeholder="Label"
+                        className="flex-1"
+                      />
+                      <Input
+                        value={item.href}
+                        onChange={(e) => {
+                          const newNav = [...header.navigation]
+                          newNav[index] = { ...item, href: e.target.value }
+                          setHeader({ ...header, navigation: newNav })
+                        }}
+                        placeholder="/path"
+                        className="flex-1"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Concept Section */}
+        <TabsContent value="concept">
+          <Card>
+            <CardHeader>
+              <CardTitle>Our Concept Section</CardTitle>
+              <CardDescription>
+                Edit the main concept section that appears after the hero
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="concept-label">Section Label</Label>
+                  <Input
+                    id="concept-label"
+                    value={concept.label}
+                    onChange={(e) => setConcept({ ...concept, label: e.target.value })}
+                    placeholder="OUR CONCEPT"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="concept-title">Title</Label>
+                  <Input
+                    id="concept-title"
+                    value={concept.title}
+                    onChange={(e) => setConcept({ ...concept, title: e.target.value })}
+                    placeholder="Enter title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="concept-description">Description</Label>
+                  <Textarea
+                    id="concept-description"
+                    value={concept.description}
+                    onChange={(e) => setConcept({ ...concept, description: e.target.value })}
+                    placeholder="Enter description"
+                    rows={4}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="concept-button">Button Text</Label>
+                    <Input
+                      id="concept-button"
+                      value={concept.buttonText}
+                      onChange={(e) => setConcept({ ...concept, buttonText: e.target.value })}
+                      placeholder="Know More"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="concept-link">Button Link</Label>
+                    <Input
+                      id="concept-link"
+                      value={concept.buttonLink}
+                      onChange={(e) => setConcept({ ...concept, buttonLink: e.target.value })}
+                      placeholder="/about"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Background Image (Parallax)</h3>
+                <ImageUpload
+                  label="Background Image"
+                  value={concept.backgroundImage || ""}
+                  onChange={(url) => setConcept({ ...concept, backgroundImage: url })}
+                  folder="backgrounds"
+                  aspectRatio="video"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  This image will be displayed with a parallax scrolling effect. Recommended size: 1920x1080px or larger.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Why Choose Section */}
+        <TabsContent value="whychoose">
+          <Card>
+            <CardHeader>
+              <CardTitle>Why Choose Section</CardTitle>
+              <CardDescription>
+                Edit the "Why Choose Us" section with features
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="why-label">Section Label</Label>
+                    <Input
+                      id="why-label"
+                      value={whyChoose.label}
+                      onChange={(e) => setWhyChoose({ ...whyChoose, label: e.target.value })}
+                      placeholder="Why Choose"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="why-title">Title</Label>
+                    <Textarea
+                      id="why-title"
+                      value={whyChoose.title}
+                      onChange={(e) => setWhyChoose({ ...whyChoose, title: e.target.value })}
+                      placeholder="Enter title"
+                      rows={2}
+                    />
+                  </div>
+                </div>
+                <ImageUpload
+                  label="Section Image"
+                  value={whyChoose.image}
+                  onChange={(url) => setWhyChoose({ ...whyChoose, image: url })}
+                  folder="sections"
+                  aspectRatio="video"
+                />
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Feature Items</h3>
+                <div className="grid gap-6">
+                  {whyChoose.items.map((item, index) => (
+                    <div key={item.id} className="p-4 border rounded-lg space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Feature {index + 1}</span>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <ImageUpload
+                          label="Icon Image"
+                          value={item.iconImage || ""}
+                          onChange={(url) => {
+                            const newItems = [...whyChoose.items]
+                            newItems[index] = { ...item, iconImage: url }
+                            setWhyChoose({ ...whyChoose, items: newItems })
+                          }}
+                          folder="icons"
+                          aspectRatio="square"
+                        />
+                        <div className="md:col-span-2 space-y-4">
+                          <div className="space-y-2">
+                            <Label>Title</Label>
+                            <Input
+                              value={item.title}
+                              onChange={(e) => {
+                                const newItems = [...whyChoose.items]
+                                newItems[index] = { ...item, title: e.target.value }
+                                setWhyChoose({ ...whyChoose, items: newItems })
+                              }}
+                              placeholder="EXPERIENCE DECADES"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Textarea
+                              value={item.description}
+                              onChange={(e) => {
+                                const newItems = [...whyChoose.items]
+                                newItems[index] = { ...item, description: e.target.value }
+                                setWhyChoose({ ...whyChoose, items: newItems })
+                              }}
+                              placeholder="Enter description"
+                              rows={2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Carousel Settings */}
+        <TabsContent value="carousel">
+          <Card>
+            <CardHeader>
+              <CardTitle>Carousel Animation Settings</CardTitle>
+              <CardDescription>
+                Configure animation effects for the hero and projects carousels
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Hero Slider Animation</Label>
+                  <Select
+                    value={carouselSettings.heroAnimation}
+                    onValueChange={(value: CarouselAnimation) => 
+                      setCarouselSettings({ ...carouselSettings, heroAnimation: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select animation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fade">Fade - Smooth opacity</SelectItem>
+                      <SelectItem value="slide">Slide - Horizontal</SelectItem>
+                      <SelectItem value="zoom">Zoom - Scale effect</SelectItem>
+                      <SelectItem value="flip">Flip - 3D rotation</SelectItem>
+                      <SelectItem value="kenburns">Ken Burns - Cinematic pan/zoom</SelectItem>
+                      <SelectItem value="blur">Blur - Defocus transition</SelectItem>
+                      <SelectItem value="cube">Cube - 3D cube rotation</SelectItem>
+                      <SelectItem value="cards">Cards - Stacked cards</SelectItem>
+                      <SelectItem value="vertical">Vertical - Up/down slide</SelectItem>
+                      <SelectItem value="creative">Creative - Scale + rotate</SelectItem>
+                      <SelectItem value="parallax">Parallax - Depth effect</SelectItem>
+                      <SelectItem value="shutters">Shutters - Blinds effect</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Animation effect for the main hero banner carousel
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Projects Slider Animation</Label>
+                  <Select
+                    value={carouselSettings.projectsAnimation}
+                    onValueChange={(value: CarouselAnimation) => 
+                      setCarouselSettings({ ...carouselSettings, projectsAnimation: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select animation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fade">Fade - Smooth opacity</SelectItem>
+                      <SelectItem value="slide">Slide - Horizontal</SelectItem>
+                      <SelectItem value="zoom">Zoom - Scale effect</SelectItem>
+                      <SelectItem value="flip">Flip - 3D rotation</SelectItem>
+                      <SelectItem value="kenburns">Ken Burns - Cinematic pan/zoom</SelectItem>
+                      <SelectItem value="blur">Blur - Defocus transition</SelectItem>
+                      <SelectItem value="cube">Cube - 3D cube rotation</SelectItem>
+                      <SelectItem value="cards">Cards - Stacked cards</SelectItem>
+                      <SelectItem value="vertical">Vertical - Up/down slide</SelectItem>
+                      <SelectItem value="creative">Creative - Scale + rotate</SelectItem>
+                      <SelectItem value="parallax">Parallax - Depth effect</SelectItem>
+                      <SelectItem value="shutters">Shutters - Blinds effect</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Animation effect for the "Our Concurrent Projects" carousel
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <div className="space-y-2 max-w-md">
+                  <Label>Auto-Play Speed (milliseconds)</Label>
+                  <Input
+                    type="number"
+                    min="2000"
+                    max="15000"
+                    step="500"
+                    value={carouselSettings.autoPlaySpeed}
+                    onChange={(e) => 
+                      setCarouselSettings({ ...carouselSettings, autoPlaySpeed: parseInt(e.target.value) || 6000 })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Time between automatic slide transitions. Recommended: 5000-8000ms (5-8 seconds)
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-3">Animation Effects Guide</h3>
+                <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <div className="font-medium text-sm mb-1">Fade</div>
+                    <p className="text-xs text-muted-foreground">Classic smooth opacity transition</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="font-medium text-sm mb-1">Slide</div>
+                    <p className="text-xs text-muted-foreground">Horizontal left/right movement</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="font-medium text-sm mb-1">Zoom</div>
+                    <p className="text-xs text-muted-foreground">Scale in from larger size</p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="font-medium text-sm mb-1">Flip</div>
+                    <p className="text-xs text-muted-foreground">3D Y-axis rotation</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Ken Burns</div>
+                    <p className="text-xs text-muted-foreground">Cinematic slow pan & zoom effect</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Blur</div>
+                    <p className="text-xs text-muted-foreground">Defocus blur with scale</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Cube</div>
+                    <p className="text-xs text-muted-foreground">3D rotating cube effect</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Cards</div>
+                    <p className="text-xs text-muted-foreground">Stacked cards pop-up</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Vertical</div>
+                    <p className="text-xs text-muted-foreground">Up/down slide transition</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Creative</div>
+                    <p className="text-xs text-muted-foreground">Combined scale + rotate</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Parallax</div>
+                    <p className="text-xs text-muted-foreground">Depth movement effect</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gold/5">
+                    <div className="font-medium text-sm mb-1">Shutters</div>
+                    <p className="text-xs text-muted-foreground">Venetian blinds reveal</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Footer Section */}
+        <TabsContent value="footer">
+          <Card>
+            <CardHeader>
+              <CardTitle>Footer Section</CardTitle>
+              <CardDescription>
+                Edit footer content, logo, and social links
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <ImageUpload
+                  label="Footer Logo"
+                  value={footer.logo || ""}
+                  onChange={(url) => setFooter({ ...footer, logo: url })}
+                  folder="branding"
+                  aspectRatio="auto"
+                />
+                <div className="space-y-2">
+                  <Label htmlFor="footer-company">Company Name</Label>
+                  <Textarea
+                    id="footer-company"
+                    value={footer.companyName}
+                    onChange={(e) => setFooter({ ...footer, companyName: e.target.value })}
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="footer-address">Address</Label>
+                  <Textarea
+                    id="footer-address"
+                    value={footer.address}
+                    onChange={(e) => setFooter({ ...footer, address: e.target.value })}
+                    rows={2}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="footer-phone">Phone</Label>
+                    <Input
+                      id="footer-phone"
+                      value={footer.phone}
+                      onChange={(e) => setFooter({ ...footer, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="footer-email">Email</Label>
+                    <Input
+                      id="footer-email"
+                      value={footer.email}
+                      onChange={(e) => setFooter({ ...footer, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Social Links</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Facebook URL</Label>
+                    <Input
+                      value={footer.socialLinks.facebook}
+                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, facebook: e.target.value } })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Twitter URL</Label>
+                    <Input
+                      value={footer.socialLinks.twitter}
+                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, twitter: e.target.value } })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Instagram URL</Label>
+                    <Input
+                      value={footer.socialLinks.instagram}
+                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, instagram: e.target.value } })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>YouTube URL</Label>
+                    <Input
+                      value={footer.socialLinks.youtube}
+                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, youtube: e.target.value } })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Social Icons (Upload custom icons)</h3>
+                <div className="grid gap-4 md:grid-cols-4">
+                  <ImageUpload
+                    label="Facebook Icon"
+                    value={footer.socialIcons?.facebook || ""}
+                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, facebook: url } })}
+                    folder="icons"
+                    aspectRatio="square"
+                  />
+                  <ImageUpload
+                    label="Twitter Icon"
+                    value={footer.socialIcons?.twitter || ""}
+                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, twitter: url } })}
+                    folder="icons"
+                    aspectRatio="square"
+                  />
+                  <ImageUpload
+                    label="Instagram Icon"
+                    value={footer.socialIcons?.instagram || ""}
+                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, instagram: url } })}
+                    folder="icons"
+                    aspectRatio="square"
+                  />
+                  <ImageUpload
+                    label="YouTube Icon"
+                    value={footer.socialIcons?.youtube || ""}
+                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, youtube: url } })}
+                    folder="icons"
+                    aspectRatio="square"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="footer-copyright">Copyright Text</Label>
+                  <Input
+                    id="footer-copyright"
+                    value={footer.copyright}
+                    onChange={(e) => setFooter({ ...footer, copyright: e.target.value })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
