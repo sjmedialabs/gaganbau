@@ -11,6 +11,14 @@ import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 
+// Use UTC date parts so server and client render the same (avoids hydration mismatch)
+function formatDayForData(date: Date): string {
+  const y = date.getUTCFullYear()
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const d = String(date.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 function Calendar({
   className,
   classNames,
@@ -37,7 +45,7 @@ function Calendar({
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString('default', { month: 'short' }),
+          date.toLocaleString('en-US', { month: 'short' }),
         ...formatters,
       }}
       classNames={{
@@ -190,7 +198,7 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString()}
+      data-day={formatDayForData(day.date)}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

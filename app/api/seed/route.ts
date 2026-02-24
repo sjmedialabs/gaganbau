@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import type { Property, GalleryAlbum, PropertiesContent } from "@/lib/types"
 import { saveHomePageContent } from "@/lib/content-store"
 import { savePropertiesContent } from "@/lib/properties-store"
+import { saveAboutContent } from "@/lib/about-store"
+import { defaultAboutContent } from "@/lib/default-about-content"
 
 // Placeholder images from Unsplash for real estate
 const PLACEHOLDER_IMAGES = {
@@ -48,7 +50,7 @@ export async function POST() {
         logo: uploadedUrls["images/logo.png"] || "/images/logo.png",
         navigation: [
           { label: "Projects", href: "/projects" },
-          { label: "Pursue", href: "/pursue" },
+          { label: "About", href: "/about" },
           { label: "Gallery", href: "/gallery" },
           { label: "Blog", href: "/blog" },
           { label: "Career", href: "/career" },
@@ -245,7 +247,7 @@ export async function POST() {
             ],
           },
           {
-            title: "Pursue",
+            title: "About",
             links: [
               { label: "About Us", href: "/about" },
               { label: "Responsibility", href: "/responsibility" },
@@ -828,12 +830,13 @@ export async function POST() {
     // Save to Firestore
     const contentSaved = await saveHomePageContent(homeContent)
     const propertiesSaved = await savePropertiesContent(propertiesContent)
+    await saveAboutContent(defaultAboutContent)
 
     if (!contentSaved || !propertiesSaved) {
       throw new Error("Failed to save to Firestore")
     }
 
-    console.log("[seed] Saved home content and properties to Firestore")
+    console.log("[seed] Saved home content, properties, and about page to Firestore")
     console.log("[seed] Properties count:", properties.length)
     console.log("[seed] Gallery albums count:", galleryAlbums.length)
 

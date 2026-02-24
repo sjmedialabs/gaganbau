@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Home, ImageIcon, FileText, Users, Eye, TrendingUp, Database } from "lucide-react"
+import { Home, ImageIcon, FileText, Users, Eye, TrendingUp } from "lucide-react"
 import Link from "next/link"
 
 const stats = [
@@ -12,7 +12,6 @@ const stats = [
 ]
 
 const quickActions = [
-  { label: "Initialize Database", href: "/admin/database", icon: Database },
   { label: "Edit Home Page", href: "/admin/home-page", icon: Home },
   { label: "Manage Hero Slides", href: "/admin/hero-slides", icon: ImageIcon },
   { label: "View Leads", href: "/admin/leads", icon: Users },

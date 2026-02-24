@@ -64,9 +64,9 @@ export function PropertyFooterSection({ homeContent }: PropertyFooterSectionProp
             </ul>
           </div>
 
-          {/* Pursue Links */}
+          {/* About Links */}
           <div>
-            <h3 className="font-semibold text-navy mb-4">Pursue</h3>
+            <h3 className="font-semibold text-navy mb-4">About</h3>
             <ul className="space-y-2">
               {footer?.columns?.[2]?.links?.map((link) => (
                 <li key={link.label}>

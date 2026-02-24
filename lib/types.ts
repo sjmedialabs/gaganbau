@@ -141,6 +141,71 @@ export interface HomePageContent {
   updatedAt: Date
 }
 
+// About page content (editable from admin)
+export interface AboutVisionPoint {
+  id: string
+  icon: string // lucide icon name
+  title: string
+  description: string
+  order: number
+}
+
+export interface AboutSustainabilityItem {
+  id: string
+  icon: string
+  title: string
+  description: string
+  order: number
+}
+
+export interface AboutPageContent {
+  id: string
+  hero: {
+    label: string
+    title: string
+    subtitle: string
+    image?: string
+  }
+  vision: {
+    label: string
+    title: string
+    points: AboutVisionPoint[]
+  }
+  mission: {
+    quote: string
+    caption: string
+  }
+  responsibility: {
+    label: string
+    title: string
+    intro: string
+    intro2: string
+    image?: string
+    initiatives: AboutSustainabilityItem[]
+  }
+  landPurchase: {
+    label: string
+    title: string
+    intro: string
+    intro2: string
+    lookingFor: string[]
+    contactCardTitle: string
+    contactCardDescription: string
+    contactAddress: string
+    contactPhone: string
+    contactEmail: string
+    contactButtonText: string
+  }
+  cta: {
+    label: string
+    title: string
+    description: string
+    projectsText: string
+    galleryText: string
+  }
+  updatedAt: Date
+}
+
 export interface SEOData {
   metaTitle: string
   metaDescription: string

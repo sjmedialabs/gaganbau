@@ -157,6 +157,9 @@ export function HeroSlider({ slides, animation = "fade", autoPlaySpeed = 6000 }:
         </div>
       ))}
 
+      {/* Black overlay for navbar and text visibility */}
+      <div className="absolute inset-0 bg-black/40 z-[3]" aria-hidden />
+
       {/* Content with smooth fade */}
       <div 
         className={`relative z-10 h-full flex flex-col items-center justify-center text-center px-6 transition-all duration-500 ease-out ${

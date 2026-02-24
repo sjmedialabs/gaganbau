@@ -6,7 +6,7 @@ export const defaultHomeContent: HomePageContent = {
     logo: "/images/logo.png",
     navigation: [
       { label: "Projects", href: "/projects" },
-      { label: "Pursue", href: "/pursue" },
+      { label: "About", href: "/about" },
       { label: "Gallery", href: "/gallery" },
       { label: "Blog", href: "/blog" },
       { label: "Career", href: "/career" },
@@ -186,7 +186,7 @@ export const defaultHomeContent: HomePageContent = {
         ],
       },
       {
-        title: "Pursue",
+        title: "About",
         links: [
           { label: "About Us", href: "/about" },
           { label: "Responsibility", href: "/responsibility" },
