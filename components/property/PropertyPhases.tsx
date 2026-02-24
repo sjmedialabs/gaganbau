@@ -22,7 +22,7 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-serif text-white">
-            {property.constructionPhasesTitle || "CONSTRUCTION PHASES"}
+            {property.constructionPhasesTitle || "LAYOUT"}
           </h2>
           <div className="w-16 h-px bg-gold mx-auto mt-4" />
         </div>

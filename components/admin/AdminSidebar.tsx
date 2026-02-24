@@ -11,7 +11,6 @@ import {
   Users,
   LogOut,
   LayoutDashboard,
-  Database,
   Building2,
   Images,
 } from "lucide-react"
@@ -19,7 +18,6 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/database", label: "Database", icon: Database },
   { href: "/admin/home-page", label: "Home Page", icon: Home },
   { href: "/admin/hero-slides", label: "Hero Slides", icon: ImageIcon },
   { href: "/admin/projects", label: "Projects Slider", icon: FileText },

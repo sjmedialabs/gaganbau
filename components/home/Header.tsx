@@ -154,7 +154,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
             <img
               src={content.logo || "/placeholder.svg"}
               alt="Gagan Bau GmbH"
-              className={`h-32 w-auto object-contain transition-all duration-500 ${
+              className={`h-24 w-auto object-contain transition-all duration-500 ${
                 isWhiteBackground 
                   ? "brightness-0 contrast-100" 
                   : "brightness-100"

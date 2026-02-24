@@ -1,34 +1,36 @@
-import { list, put, del } from "@vercel/blob"
+import { getAdminFirestore } from "./firebase-admin"
 import type { HomePageContent } from "./types"
 import { defaultHomeContent } from "./default-content"
 
-const CONTENT_FILE = "content/home-page.json"
+const CONTENT_DOC = "home"
+
+export async function hasHomePageContent(): Promise<boolean> {
+  try {
+    const db = getAdminFirestore()
+    const doc = await db.collection("content").doc(CONTENT_DOC).get()
+    return doc.exists
+  } catch {
+    return false
+  }
+}
 
 export async function getHomePageContent(): Promise<HomePageContent> {
   try {
-    let blobs: Awaited<ReturnType<typeof list>>["blobs"]
-    try {
-      const result = await list({ prefix: "content/" })
-      blobs = result.blobs
-    } catch {
-      // Blob store unavailable (blocked, misconfigured, etc.) - use defaults
+    const db = getAdminFirestore()
+    const doc = await db.collection("content").doc(CONTENT_DOC).get()
+
+    if (!doc.exists) {
       return defaultHomeContent
     }
 
-    const contentBlob = blobs.find((b) => b.pathname === CONTENT_FILE)
-    if (!contentBlob) {
-      return defaultHomeContent
-    }
+    const data = doc.data()
+    if (!data) return defaultHomeContent
 
-    // Use downloadUrl (token-authenticated) instead of url (public, can be blocked)
-    const fetchUrl = contentBlob.downloadUrl || contentBlob.url
-    const response = await fetch(fetchUrl, { cache: "no-store" })
-    if (!response.ok) {
-      return defaultHomeContent
-    }
-
-    const content = await response.json()
-    return content as HomePageContent
+    const content = data as Omit<HomePageContent, "updatedAt"> & { updatedAt: string }
+    return {
+      ...content,
+      updatedAt: content.updatedAt ? new Date(content.updatedAt) : new Date(),
+    } as HomePageContent
   } catch (error) {
     console.error("Error fetching home content:", error)
     return defaultHomeContent
@@ -37,22 +39,12 @@ export async function getHomePageContent(): Promise<HomePageContent> {
 
 export async function saveHomePageContent(content: HomePageContent): Promise<boolean> {
   try {
-    // Delete existing blob first to avoid conflicts
-    try {
-      const { blobs } = await list({ prefix: "content/" })
-      const existingBlob = blobs.find((b) => b.pathname === CONTENT_FILE)
-      if (existingBlob) {
-        await del(existingBlob.url)
-      }
-    } catch {
-      // Ignore list/deletion errors - store may be temporarily unavailable
+    const db = getAdminFirestore()
+    const payload = {
+      ...content,
+      updatedAt: content.updatedAt instanceof Date ? content.updatedAt.toISOString() : content.updatedAt,
     }
-    
-    // Save new content
-    await put(CONTENT_FILE, JSON.stringify(content, null, 2), {
-      access: "public",
-      contentType: "application/json",
-    })
+    await db.collection("content").doc(CONTENT_DOC).set(payload)
     return true
   } catch (error) {
     console.error("Error saving home content:", error)
@@ -61,13 +53,9 @@ export async function saveHomePageContent(content: HomePageContent): Promise<boo
 }
 
 export async function initializeContent(): Promise<HomePageContent> {
-  // Check if content exists
-  const existing = await getHomePageContent()
-  if (existing) {
-    return existing
+  if (await hasHomePageContent()) {
+    return getHomePageContent()
   }
-
-  // Save default content
   await saveHomePageContent(defaultHomeContent)
   return defaultHomeContent
 }

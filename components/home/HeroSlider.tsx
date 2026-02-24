@@ -163,10 +163,10 @@ export function HeroSlider({ slides, animation = "fade", autoPlaySpeed = 6000 }:
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <h1 className="font-aurallia text-4xl md:text-5xl lg:text-7xl text-white mb-4 text-balance tracking-wide">
+        <h1 className="text-shadow-md font-aurallia text-4xl md:text-5xl lg:text-7xl text-white mb-4 text-balance tracking-wide">
           {slide.title}
         </h1>
-        <p className="text-white text-lg md:text-xl mb-8 font-light">
+        <p className="text-shadow-md text-white text-lg md:text-xl mb-8 font-light">
           {slide.subtitle}
         </p>
         <Link

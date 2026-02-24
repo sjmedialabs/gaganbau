@@ -74,7 +74,7 @@ const defaultProperty: Partial<Property> = {
     availability: [],
     address: "",
   },
-  constructionPhasesTitle: "ALL CONSTRUCTION PHASES",
+  constructionPhasesTitle: "LAYOUT",
   constructionPhases: [],
   locationTitle: "THE LOCATION",
   locationHighlights: [],

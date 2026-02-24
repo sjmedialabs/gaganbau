@@ -1,4 +1,5 @@
 import type { Property } from "@/lib/types"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Download,
@@ -81,9 +82,11 @@ export function PropertyHero({ property }: PropertyHeroProps) {
                 <Download className="w-4 h-4" />
                 Download Brochure
               </Button>
-              <Button className="bg-gold hover:bg-gold-dark text-white gap-2 text-sm">
-                <Building2 className="w-4 h-4" />
-                Schedule Visit
+              <Button asChild className="bg-gold hover:bg-gold-dark text-white gap-2 text-sm">
+                <Link href="/contact">
+                  <Building2 className="w-4 h-4" />
+                  Schedule Visit
+                </Link>
               </Button>
             </div>
           </div>

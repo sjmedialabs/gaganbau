@@ -94,6 +94,9 @@
   --font-sans: var(--font-jost), 'Jost', sans-serif;
   --font-serif: var(--font-display), 'Cormorant Garamond', 'Georgia', serif;
   --font-mono: 'Geist Mono', monospace;
+  /* Global font size bump: 12px → 14px, 14px → 16px */
+  --text-xs: 0.875rem; /* 14px (was 12px) */
+  --text-sm: 1rem;     /* 16px (was 14px) */
   --color-gold: var(--gold);
   --color-gold-dark: var(--gold-dark);
   --color-navy: var(--navy);
@@ -142,7 +145,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base;
   }
 }
 

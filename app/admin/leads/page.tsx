@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useCallback } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -31,64 +31,13 @@ import { toast } from "sonner"
 import { Search, Trash2, Eye, Download, RefreshCw } from "lucide-react"
 import type { Lead } from "@/lib/types"
 
-// Sample data - in production this would come from Firebase
-const sampleLeads: Lead[] = [
-  {
-    id: "1",
-    name: "John Smith",
-    email: "john.smith@email.com",
-    phone: "+49 123 456 7890",
-    message: "Interested in the ReHomes Butterfly project. Looking for a 3-bedroom apartment.",
-    pageSource: "/projects/rehomes-butterfly",
-    status: "new",
-    createdAt: new Date("2026-01-25T10:30:00"),
-    updatedAt: new Date("2026-01-25T10:30:00"),
-  },
-  {
-    id: "2",
-    name: "Maria Weber",
-    email: "maria.weber@email.com",
-    phone: "+49 987 654 3210",
-    message: "Would like to schedule a viewing for the Grand Residence penthouse.",
-    pageSource: "/projects/grand-residence",
-    status: "contacted",
-    createdAt: new Date("2026-01-24T14:15:00"),
-    updatedAt: new Date("2026-01-25T09:00:00"),
-  },
-  {
-    id: "3",
-    name: "Thomas Mueller",
-    email: "t.mueller@company.de",
-    phone: "+49 555 123 4567",
-    message: "Investment inquiry for multiple units in Skyline Towers.",
-    pageSource: "/contact",
-    status: "closed",
-    createdAt: new Date("2026-01-20T09:45:00"),
-    updatedAt: new Date("2026-01-23T16:30:00"),
-  },
-  {
-    id: "4",
-    name: "Sophie Braun",
-    email: "sophie.braun@gmail.com",
-    phone: "+49 172 345 6789",
-    message: "Looking for land purchase opportunities in Munich area.",
-    pageSource: "/land-purchase",
-    status: "new",
-    createdAt: new Date("2026-01-26T08:00:00"),
-    updatedAt: new Date("2026-01-26T08:00:00"),
-  },
-  {
-    id: "5",
-    name: "Klaus Fischer",
-    email: "klaus.f@business.de",
-    phone: "+49 160 987 6543",
-    message: "Commercial property inquiry for retail space.",
-    pageSource: "/",
-    status: "contacted",
-    createdAt: new Date("2026-01-22T11:20:00"),
-    updatedAt: new Date("2026-01-24T14:00:00"),
-  },
-]
+function parseLead(d: { id: string; createdAt?: string; updatedAt?: string; [k: string]: unknown }): Lead {
+  return {
+    ...d,
+    createdAt: d.createdAt ? new Date(d.createdAt) : new Date(),
+    updatedAt: d.updatedAt ? new Date(d.updatedAt) : new Date(),
+  } as Lead
+}
 
 const statusColors = {
   new: "bg-green-100 text-green-800 border-green-200",
@@ -97,11 +46,30 @@ const statusColors = {
 }
 
 export default function LeadsPage() {
-  const [leads, setLeads] = useState<Lead[]>(sampleLeads)
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest")
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+
+  const fetchLeads = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch("/api/leads")
+      const data = await res.json().catch(() => [])
+      const list = Array.isArray(data) ? data : data.leads ?? []
+      setLeads(list.map((d: Record<string, unknown> & { id: string }) => parseLead(d)))
+    } catch {
+      toast.error("Failed to load leads")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchLeads()
+  }, [fetchLeads])
 
   // Filter and sort leads
   const filteredLeads = leads
@@ -136,14 +104,16 @@ export default function LeadsPage() {
 
   const exportLeads = () => {
     const csv = [
-      ["Name", "Email", "Phone", "Message", "Page Source", "Status", "Date"].join(","),
+      ["Name", "Email", "Phone", "Message", "Page Source", "Property", "Scheduled Visit", "Status", "Date"].join(","),
       ...filteredLeads.map((lead) =>
         [
           `"${lead.name}"`,
           lead.email,
           lead.phone,
-          `"${lead.message.replace(/"/g, '""')}"`,
+          `"${(lead.message || "").replace(/"/g, '""')}"`,
           lead.pageSource,
+          (lead as Lead & { propertyInterest?: string }).propertyInterest ?? "",
+          (lead as Lead & { scheduledVisit?: string }).scheduledVisit ?? "",
           lead.status,
           lead.createdAt.toISOString(),
         ].join(",")
@@ -179,8 +149,8 @@ export default function LeadsPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button variant="outline" onClick={fetchLeads} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Button onClick={exportLeads} className="bg-gold hover:bg-gold-dark text-white">
@@ -263,6 +233,8 @@ export default function LeadsPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Contact</TableHead>
+                <TableHead>Property</TableHead>
+                <TableHead>Schedule</TableHead>
                 <TableHead>Page Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
@@ -270,9 +242,15 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLeads.length === 0 ? (
+              {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    Loading leads...
+                  </TableCell>
+                </TableRow>
+              ) : filteredLeads.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No leads found
                   </TableCell>
                 </TableRow>
@@ -292,6 +270,12 @@ export default function LeadsPage() {
                         <p>{lead.email}</p>
                         <p className="text-muted-foreground">{lead.phone}</p>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm max-w-[120px] truncate" title={lead.propertyInterest}>
+                      {lead.propertyInterest || "—"}
+                    </TableCell>
+                    <TableCell className="text-sm max-w-[140px] truncate text-muted-foreground" title={lead.scheduledVisit}>
+                      {lead.scheduledVisit || "—"}
                     </TableCell>
                     <TableCell>
                       <code className="text-xs bg-muted px-2 py-1 rounded">
@@ -380,6 +364,18 @@ export default function LeadsPage() {
                     </a>
                   </div>
                 </div>
+                {(selectedLead as Lead & { propertyInterest?: string }).propertyInterest && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Property of interest</p>
+                    <p className="font-medium">{(selectedLead as Lead & { propertyInterest?: string }).propertyInterest}</p>
+                  </div>
+                )}
+                {(selectedLead as Lead & { scheduledVisit?: string }).scheduledVisit && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Scheduled visit</p>
+                    <p className="font-medium">{(selectedLead as Lead & { scheduledVisit?: string }).scheduledVisit}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm text-muted-foreground">Page Source</p>
                   <code className="text-sm bg-muted px-2 py-1 rounded">
@@ -388,7 +384,7 @@ export default function LeadsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Message</p>
-                  <p className="text-sm bg-muted p-4 rounded-lg">{selectedLead.message}</p>
+                  <p className="text-sm bg-muted p-4 rounded-lg">{selectedLead.message || "—"}</p>
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div>

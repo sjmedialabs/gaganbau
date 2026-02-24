@@ -158,6 +158,10 @@ export interface Lead {
   message: string
   pageSource: string
   status: "new" | "contacted" | "closed"
+  /** Property of interest (e.g. "Linden Park", "Skyline Towers") */
+  propertyInterest?: string
+  /** Preferred date/time for visit (ISO string or display string) */
+  scheduledVisit?: string
   createdAt: Date
   updatedAt: Date
 }

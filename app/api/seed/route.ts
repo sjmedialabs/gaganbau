@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
-import { put, list, del } from "@vercel/blob"
 import type { Property, GalleryAlbum, PropertiesContent } from "@/lib/types"
-
-const CONTENT_FILE = "content/home-page.json"
-const PROPERTIES_FILE = "content/properties.json"
+import { saveHomePageContent } from "@/lib/content-store"
+import { savePropertiesContent } from "@/lib/properties-store"
 
 // Placeholder images from Unsplash for real estate
 const PLACEHOLDER_IMAGES = {
@@ -43,10 +41,7 @@ const uploadedUrls = {
 
 export async function POST() {
   try {
-    // Check existing blobs
-    const { blobs: existingBlobs } = await list()
-    
-    // Create content with blob URLs
+    // Create content with placeholder image URLs
     const homeContent = {
       id: "home",
       header: {
@@ -320,23 +315,23 @@ export async function POST() {
           availability: ["1. BA: ready for occupancy, sold out", "2. BA: est. Q1 2027"],
           address: "Marbachstrasse 26, 80937 Munich"
         },
-        constructionPhasesTitle: "ALL CONSTRUCTION PHASES",
+        constructionPhasesTitle: "LAYOUT",
         constructionPhases: [
           {
             id: "phase-1",
-            title: "Exterior view of construction phase 2",
+            title: "Layout",
             image: uploadedUrls["images/project-2.png"] || "/images/project-2.png",
             description: "Modern facade with premium materials"
           },
           {
             id: "phase-2",
-            title: "Exterior view of construction phase 2",
+            title: "Layout 1",
             image: uploadedUrls["images/project-3.png"] || "/images/project-3.png",
             description: "Landscaped gardens and pathways"
           },
           {
             id: "phase-3",
-            title: "Exterior view of construction phase 2",
+            title: "Layout 2",
             image: uploadedUrls["images/project-4.png"] || "/images/project-4.png",
             description: "Community spaces and amenities"
           }
@@ -422,17 +417,17 @@ export async function POST() {
           availability: ["Construction completion: Q3 2027"],
           address: "Leopoldstrasse 45, 80802 Munich"
         },
-        constructionPhasesTitle: "ALL CONSTRUCTION PHASES",
+        constructionPhasesTitle: "LAYOUT",
         constructionPhases: [
           {
             id: "phase-1",
-            title: "Foundation and structure",
+            title: "Layout 1",
             image: uploadedUrls["images/project-3.png"] || "/images/project-3.png",
             description: "State-of-the-art foundation work"
           },
           {
             id: "phase-2",
-            title: "Facade installation",
+            title: "Layout 2",
             image: uploadedUrls["images/project-4.png"] || "/images/project-4.png",
             description: "Premium glass and steel facade"
           }
@@ -830,54 +825,24 @@ export async function POST() {
       updatedAt: new Date()
     }
 
-    // Delete existing properties file if exists
-    const existingPropertiesBlob = existingBlobs.find((b) => b.pathname === PROPERTIES_FILE)
-    if (existingPropertiesBlob) {
-      try {
-        await del(existingPropertiesBlob.url)
-        console.log("[v0] Deleted existing properties file")
-      } catch (e) {
-        console.log("[v0] No existing properties file to delete or delete failed:", e)
-      }
+    // Save to Firestore
+    const contentSaved = await saveHomePageContent(homeContent)
+    const propertiesSaved = await savePropertiesContent(propertiesContent)
+
+    if (!contentSaved || !propertiesSaved) {
+      throw new Error("Failed to save to Firestore")
     }
 
-    // Delete existing home content file if exists
-    const existingContentBlob = existingBlobs.find((b) => b.pathname === CONTENT_FILE)
-    if (existingContentBlob) {
-      try {
-        await del(existingContentBlob.url)
-        console.log("[v0] Deleted existing content file")
-      } catch (e) {
-        console.log("[v0] No existing content file to delete or delete failed:", e)
-      }
-    }
+    console.log("[seed] Saved home content and properties to Firestore")
+    console.log("[seed] Properties count:", properties.length)
+    console.log("[seed] Gallery albums count:", galleryAlbums.length)
 
-    // Save home content to blob
-    const savedContent = await put(CONTENT_FILE, JSON.stringify(homeContent, null, 2), {
-      access: "public",
-      contentType: "application/json",
-      addRandomSuffix: false,
-    })
-    console.log("[v0] Saved home content to:", savedContent.url)
-
-    // Save properties content to blob
-    const savedProperties = await put(PROPERTIES_FILE, JSON.stringify(propertiesContent, null, 2), {
-      access: "public",
-      contentType: "application/json",
-      addRandomSuffix: false,
-    })
-    console.log("[v0] Saved properties to:", savedProperties.url)
-    console.log("[v0] Properties count:", properties.length)
-    console.log("[v0] Gallery albums count:", galleryAlbums.length)
-    
     return NextResponse.json({
       success: true,
       message: "Database seeded successfully with properties and gallery",
       uploadedImages: Object.keys(uploadedUrls).length,
       propertiesCount: properties.length,
       galleryAlbumsCount: galleryAlbums.length,
-      contentUrl: savedContent.url,
-      propertiesUrl: savedProperties.url,
     })
   } catch (error) {
     console.error("Seed error:", error)

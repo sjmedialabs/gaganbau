@@ -85,18 +85,17 @@ export default function DatabasePage() {
               Initialize Database
             </CardTitle>
             <CardDescription>
-              Upload all images to Vercel Blob storage and initialize the home page content, properties, and gallery albums with proper URLs.
+              Initialize the home page content, properties, and gallery albums in Firestore with placeholder image URLs. Use Firebase Storage for file uploads.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground space-y-2">
               <p>This will:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Upload all local images to Vercel Blob storage</li>
-                <li>Create the home page content with blob URLs</li>
+                <li>Create the home page content in Firestore with placeholder image URLs</li>
                 <li>Create 6 comprehensive sample properties (2 On Sale, 2 In Planning, 2 Reference)</li>
                 <li>Create 3 gallery albums with sample images</li>
-                <li>Skip images that are already uploaded</li>
+                <li>Store properties and gallery albums in Firestore</li>
               </ul>
             </div>
 
@@ -135,7 +134,7 @@ export default function DatabasePage() {
                   <p className="font-medium">{seedResult.message}</p>
                   {seedResult.uploadedImages !== undefined && (
                     <p className="text-sm mt-1">
-                      {seedResult.uploadedImages} images uploaded to Blob storage
+                      {seedResult.uploadedImages} placeholder image references
                     </p>
                   )}
                   {seedResult.propertiesCount !== undefined && (
@@ -211,13 +210,10 @@ export default function DatabasePage() {
           <div className="prose prose-sm dark:prose-invert max-w-none">
             <ol className="space-y-2">
               <li>
-                <strong>Click "Initialize Database"</strong> to upload all images from the public folder to Vercel Blob storage.
+                <strong>Click "Initialize Database"</strong> to seed Firestore with home content, properties, and gallery albums (using placeholder image URLs).
               </li>
               <li>
-                <strong>Images are stored with public access</strong> and served via Vercel&apos;s edge network for fast delivery.
-              </li>
-              <li>
-                <strong>Content is stored as JSON</strong> in Blob storage and fetched by the frontend via API routes.
+                <strong>Content is stored in Firestore</strong> and fetched by the frontend via API routes. Use Firebase Storage for image uploads.
               </li>
               <li>
                 <strong>Edit content</strong> using the other admin pages - all changes will be saved to the database.

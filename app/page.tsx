@@ -11,7 +11,7 @@ import { getAllProperties } from "@/lib/properties-store"
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  // Get content from blob storage (returns default content if not found)
+  // Get content from Firestore (returns default content if not found)
   const content = await getHomePageContent()
   const properties = await getAllProperties()
 
