@@ -47,8 +47,13 @@ export function ImageUpload({
 
       if (res.ok) {
         const data = await res.json()
-        onChange(data.url)
-        toast.success("Image uploaded successfully!")
+        const url = data?.url
+        if (typeof url === "string" && url.trim()) {
+          onChange(url.trim())
+          toast.success("Image uploaded successfully!")
+        } else {
+          toast.error("Upload succeeded but no image URL was returned.")
+        }
       } else {
         const data = await res.json().catch(() => ({}))
         const message = data?.details || data?.error || "Failed to upload image"
@@ -88,9 +93,11 @@ export function ImageUpload({
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
+              key={value}
               src={value || "/placeholder.svg"}
               alt={label}
               className="absolute inset-0 w-full h-full object-cover"
+              onError={() => toast.error("Image failed to load. The URL may be invalid or the file was not saved (e.g. enable Firebase Storage if deployed).")}
             />
             <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <Button

@@ -20,6 +20,11 @@ const ALLOWED_IMAGE_TYPES = [
 
 const UPLOADS_DIR = "public/uploads"
 
+/** True when running on Vercel or similar serverless where local files don't persist. */
+function isServerless(): boolean {
+  return process.env.VERCEL === "1" || !!process.env.AWS_LAMBDA_FUNCTION_NAME
+}
+
 async function saveToLocal(buffer: Buffer, filePath: string): Promise<string> {
   const fullPath = path.join(process.cwd(), UPLOADS_DIR, filePath)
   await mkdir(path.dirname(fullPath), { recursive: true })
@@ -71,6 +76,17 @@ export async function POST(request: NextRequest) {
 
     const useLocalOnly = process.env.UPLOAD_USE_LOCAL === "true"
 
+    // On serverless (Vercel, etc.), local uploads don't persist — files written here won't be
+    // served on the next request. Require Firebase Storage so returned URLs actually work.
+    if (isServerless() && useLocalOnly) {
+      return NextResponse.json(
+        {
+          error: "Local uploads are not supported in this environment. Enable Firebase Storage in your project and remove UPLOAD_USE_LOCAL.",
+        },
+        { status: 503 }
+      )
+    }
+
     if (!useLocalOnly) {
       try {
         const storage = getAdminStorage()
@@ -108,30 +124,58 @@ export async function POST(request: NextRequest) {
         })
       } catch (firebaseError) {
         if (isBucketNotFound(firebaseError)) {
+          if (isServerless()) {
+            return NextResponse.json(
+              {
+                error:
+                  "Firebase Storage is not set up. Enable Storage in Firebase Console and ensure your bucket exists. Local uploads do not persist in this environment.",
+              },
+              { status: 503 }
+            )
+          }
           console.warn(
             "Firebase Storage bucket not found (enable Storage in Firebase Console). Using local uploads."
           )
-          const url = await saveToLocal(buffer, filePath)
-          return NextResponse.json({
-            url,
-            path: filePath,
-            filename: file.name,
-            size: file.size,
-            type: file.type,
-          })
+          try {
+            const url = await saveToLocal(buffer, filePath)
+            return NextResponse.json({
+              url,
+              path: filePath,
+              filename: file.name,
+              size: file.size,
+              type: file.type,
+            })
+          } catch (localErr) {
+            console.error("Local save failed:", localErr)
+            return NextResponse.json(
+              { error: "Upload failed. Enable Firebase Storage or run with persistent disk." },
+              { status: 503 }
+            )
+          }
         }
         throw firebaseError
       }
     }
 
-    const url = await saveToLocal(buffer, filePath)
-    return NextResponse.json({
-      url,
-      path: filePath,
-      filename: file.name,
-      size: file.size,
-      type: file.type,
-    })
+    try {
+      const url = await saveToLocal(buffer, filePath)
+      return NextResponse.json({
+        url,
+        path: filePath,
+        filename: file.name,
+        size: file.size,
+        type: file.type,
+      })
+    } catch (localErr) {
+      console.error("Local save failed:", localErr)
+      return NextResponse.json(
+        {
+          error:
+            "Local save failed. If deployed on Vercel or similar, set up Firebase Storage and do not use UPLOAD_USE_LOCAL.",
+        },
+        { status: 503 }
+      )
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed"
     console.error("Upload error:", error)
