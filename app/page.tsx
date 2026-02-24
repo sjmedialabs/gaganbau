@@ -23,12 +23,12 @@ export default async function HomePage() {
         animation={content.carouselSettings?.heroAnimation}
         autoPlaySpeed={content.carouselSettings?.autoPlaySpeed}
       />
-      <ConceptSection content={content.concept} />
       <ProjectsSlider 
         projects={content.projects}
         animation={content.carouselSettings?.projectsAnimation}
         autoPlaySpeed={content.carouselSettings?.autoPlaySpeed}
       />
+      <ConceptSection content={content.concept} />
       <WhyChooseSection content={content.whyChoose} />
       <PressSection content={content.press} />
       <Footer content={content.footer} />

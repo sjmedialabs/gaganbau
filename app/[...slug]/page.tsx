@@ -37,7 +37,7 @@ export default async function CatchAllPage({ params }: PageProps) {
           <span className="inline-block text-xs tracking-[0.2em] text-gold font-medium mb-4 uppercase animate-fade-down">
             Page
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif italic mb-6 animate-fade-up">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif mb-6 animate-fade-up">
             {pageTitle}
           </h1>
           <p className="text-white/70 max-w-xl mx-auto animate-blur-in" style={{ animationDelay: '200ms' }}>

@@ -130,7 +130,7 @@ export default async function CareerPage() {
           <span className="inline-block text-xs tracking-[0.25em] text-gold font-medium mb-4 uppercase animate-fade-down">
             Join Our Team
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif italic mb-6 animate-fade-up">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif mb-6 animate-fade-up">
             Build Your Future With Us
           </h1>
           <p className="text-white/60 max-w-2xl text-lg leading-relaxed animate-blur-in" style={{ animationDelay: "200ms" }}>
@@ -152,7 +152,7 @@ export default async function CareerPage() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
             <span className="text-xs tracking-[0.25em] text-gold font-medium uppercase mb-4 block">What Drives Us</span>
-            <h2 className="text-3xl md:text-4xl font-serif italic text-navy mb-4">Our Values</h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-navy mb-4">Our Values</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Our culture is the foundation of everything we build. These values guide our decisions, shape our team, and define the standard of our work.
             </p>
@@ -181,7 +181,7 @@ export default async function CareerPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <span className="text-xs tracking-[0.25em] text-gold font-medium uppercase mb-4 block">Benefits</span>
-              <h2 className="text-3xl md:text-4xl font-serif italic text-navy mb-6">
+              <h2 className="text-3xl md:text-4xl font-serif text-navy mb-6">
                 Why Gagan Bau?
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-8">
@@ -225,7 +225,7 @@ export default async function CareerPage() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
             <span className="text-xs tracking-[0.25em] text-gold font-medium uppercase mb-4 block">Opportunities</span>
-            <h2 className="text-3xl md:text-4xl font-serif italic text-navy mb-4">Open Positions</h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-navy mb-4">Open Positions</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Explore our current openings and find the role that matches your ambition. We are always looking for talented individuals who share our vision.
             </p>
@@ -288,7 +288,7 @@ export default async function CareerPage() {
         </div>
         <div className="max-w-[700px] mx-auto px-6 text-center relative z-10">
           <GraduationCap className="w-12 h-12 text-gold mx-auto mb-6" />
-          <h2 className="text-3xl md:text-4xl font-serif italic text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">
             Don't See Your Dream Role?
           </h2>
           <p className="text-white/60 leading-relaxed mb-8">

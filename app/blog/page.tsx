@@ -110,7 +110,7 @@ export default async function BlogPage() {
           <span className="inline-block text-xs tracking-[0.25em] text-gold font-medium mb-4 uppercase animate-fade-down">
             Insights & Stories
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif italic mb-6 animate-fade-up">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif mb-6 animate-fade-up">
             Our Blog
           </h1>
           <p className="text-white/60 max-w-xl text-lg leading-relaxed animate-blur-in" style={{ animationDelay: "200ms" }}>
@@ -237,7 +237,7 @@ export default async function BlogPage() {
       <section className="py-20 bg-navy">
         <div className="max-w-[700px] mx-auto px-6 text-center">
           <span className="text-xs tracking-[0.25em] text-gold font-medium uppercase mb-4 block">Stay Connected</span>
-          <h2 className="text-3xl md:text-4xl font-serif italic text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">
             Never Miss an Update
           </h2>
           <p className="text-white/60 mb-8 leading-relaxed">
