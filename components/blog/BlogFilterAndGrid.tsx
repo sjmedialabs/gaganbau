@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Calendar, Clock, User } from "lucide-react"
+import { ArrowRight, Calendar, Clock, User, Filter } from "lucide-react"
 import type { BlogPost } from "@/lib/types"
 
 interface BlogFilterAndGridProps {
@@ -14,55 +14,23 @@ export function BlogFilterAndGrid({ featured, regularPosts }: BlogFilterAndGridP
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const categories = useMemo(() => {
-    const set = new Set(regularPosts.map((p) => p.category))
-    if (featured?.category) set.add(featured.category)
-    return Array.from(set).sort()
+    const set = new Set<string>()
+    regularPosts.forEach((p) => p.category?.trim() && set.add(p.category.trim()))
+    if (featured?.category?.trim()) set.add(featured.category.trim())
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
   }, [regularPosts, featured])
 
   const filteredPosts = useMemo(() => {
     if (!selectedCategory) return regularPosts
-    return regularPosts.filter((p) => p.category === selectedCategory)
+    return regularPosts.filter((p) => (p.category || "").trim() === selectedCategory)
   }, [regularPosts, selectedCategory])
 
   const showFeatured =
     featured &&
-    (!selectedCategory || featured.category === selectedCategory)
+    (!selectedCategory || (featured.category || "").trim() === selectedCategory)
 
   return (
     <>
-      {/* Category Filter */}
-      <section className="border-y border-border bg-muted/20">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          <div className="flex items-center gap-6 py-4 overflow-x-auto text-sm">
-            <button
-              type="button"
-              onClick={() => setSelectedCategory(null)}
-              className={`whitespace-nowrap transition-colors ${
-                selectedCategory === null
-                  ? "text-navy font-medium border-b-2 border-gold pb-1"
-                  : "text-muted-foreground hover:text-navy"
-              }`}
-            >
-              All Posts
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap transition-colors ${
-                  selectedCategory === cat
-                    ? "text-navy font-medium border-b-2 border-gold pb-1"
-                    : "text-muted-foreground hover:text-navy"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Post - only when All or matching category */}
       {showFeatured && (
         <section className="py-16 lg:py-20">
@@ -113,6 +81,50 @@ export function BlogFilterAndGrid({ featured, regularPosts }: BlogFilterAndGridP
           </div>
         </section>
       )}
+
+      {/* Category Filter - dynamic from post categories */}
+      <section className="border-y border-border bg-muted/30">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          <div className="flex flex-wrap items-center gap-3 py-5">
+            <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground shrink-0">
+              <Filter className="w-4 h-4 text-gold" />
+              Filter by:
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  selectedCategory === null
+                    ? "bg-gold text-white shadow-sm"
+                    : "bg-background border border-border text-muted-foreground hover:border-gold/50 hover:text-navy"
+                }`}
+              >
+                All Posts
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                    selectedCategory === cat
+                      ? "bg-gold text-white shadow-sm"
+                      : "bg-background border border-border text-muted-foreground hover:border-gold/50 hover:text-navy"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {selectedCategory && (
+              <span className="text-xs text-muted-foreground ml-2 shrink-0">
+                {filteredPosts.length} post{filteredPosts.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Blog Grid */}
       <section className="py-16 lg:py-20">

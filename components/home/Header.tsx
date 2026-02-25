@@ -151,20 +151,13 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between h-18">
           {/* Logo */}
-          <Link
-            href="/"
-            className={`flex-shrink-0 transition-all duration-500 ${
-              isWhiteBackground ? "" : "rounded-lg bg-black/30 backdrop-blur-md px-3 py-2"
-            }`}
-          >
+          <Link href="/" className="flex-shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={content.logo || "/placeholder.svg"}
               alt="Gagan Bau GmbH"
               className={`h-24 w-auto object-contain transition-all duration-500 ${
-                isWhiteBackground
-                  ? "brightness-0 contrast-100"
-                  : "brightness-0 invert"
+                isWhiteBackground ? "brightness-0 contrast-100" : "brightness-100"
               }`}
             />
           </Link>
@@ -187,7 +180,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                       className={`flex items-center gap-1 text-sm font-medium transition-colors duration-300 ${
                         isWhiteBackground
                           ? "text-navy hover:text-gold"
-                          : "text-black hover:text-gold"
+                          : "text-white hover:text-gold"
                       }`}
                     >
                       {translateLabel(item.label)}
@@ -213,7 +206,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                   className={`text-sm font-medium transition-colors duration-300 ${
                     isWhiteBackground
                       ? "text-navy hover:text-gold"
-                      : "text-black hover:text-gold"
+                      : "text-white hover:text-gold"
                   }`}
                 >
                   {translateLabel(item.label)}
@@ -229,7 +222,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                 className={`flex items-center gap-1 text-sm font-medium transition-colors duration-300 ${
                   isWhiteBackground
                     ? "text-navy hover:text-gold"
-                    : "text-black hover:text-gold"
+                    : "text-white hover:text-gold"
                 }`}
               >
                 {locale === "de" ? "DE" : "EN"}
@@ -260,7 +253,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
           <button
             type="button"
             className={`lg:hidden p-2 transition-colors duration-300 ${
-              isWhiteBackground ? "text-navy" : "text-black"
+              isWhiteBackground ? "text-navy" : "text-white"
             }`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"

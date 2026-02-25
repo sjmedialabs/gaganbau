@@ -196,12 +196,15 @@ export default function CreatePropertyPage() {
     }
   }
 
-  // Construction phase handlers
+  // Project plan (construction phase) handlers
+  const getPlanImages = (p: ConstructionPhase): string[] =>
+    (p.images && p.images.length > 0) ? p.images : (p.image ? [p.image] : [""])
+
   const addConstructionPhase = () => {
     const newPhase: ConstructionPhase = {
       id: `phase-${Date.now()}`,
       title: "",
-      image: "",
+      images: [""],
       description: "",
     }
     updateProperty({
@@ -215,6 +218,28 @@ export default function CreatePropertyPage() {
         p.id === id ? { ...p, ...updates } : p
       ),
     })
+  }
+
+  const updatePlanImage = (phaseId: string, imageIndex: number, url: string) => {
+    const phase = property.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    const images = [...getPlanImages(phase)]
+    if (imageIndex >= images.length) images.length = imageIndex + 1
+    images[imageIndex] = url
+    updateConstructionPhase(phaseId, { images })
+  }
+
+  const addPlanImage = (phaseId: string) => {
+    const phase = property.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    updateConstructionPhase(phaseId, { images: [...getPlanImages(phase), ""] })
+  }
+
+  const removePlanImage = (phaseId: string, imageIndex: number) => {
+    const phase = property.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    const images = getPlanImages(phase).filter((_, i) => i !== imageIndex)
+    updateConstructionPhase(phaseId, { images: images.length ? images : [""] })
   }
 
   const removeConstructionPhase = (id: string) => {
@@ -924,12 +949,12 @@ export default function CreatePropertyPage() {
           </Card>
         </TabsContent>
 
-        {/* Construction Phases Tab */}
+        {/* Project Plans Tab */}
         <TabsContent value="phases">
           <Card>
             <CardHeader>
-              <CardTitle>Construction Phases</CardTitle>
-              <CardDescription>Add multiple construction phase tabs, each with its own image and description</CardDescription>
+              <CardTitle>Project Plans</CardTitle>
+              <CardDescription>Add multiple project plans. Each plan has a type (title), description, and can have multiple images. Use Next/Prev on the website to cycle through images in the same plan.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -938,15 +963,15 @@ export default function CreatePropertyPage() {
                   id="constructionPhasesTitle"
                   value={property.constructionPhasesTitle}
                   onChange={(e) => updateProperty({ constructionPhasesTitle: e.target.value })}
-                  placeholder="e.g., ALL CONSTRUCTION PHASES"
+                  placeholder="e.g., Project Plans"
                 />
               </div>
 
               <div className="space-y-6">
-                {property.constructionPhases?.map((phase, index) => (
+                {property.constructionPhases?.map((phase) => (
                   <div key={phase.id} className="border rounded-lg p-4 space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Phase {index + 1}: {phase.title || "Untitled"}</h4>
+                      <h4 className="font-medium">Plan Type: {phase.title || "Untitled"}</h4>
                       <Button
                         variant="outline"
                         size="sm"
@@ -960,32 +985,55 @@ export default function CreatePropertyPage() {
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label>Tab Title *</Label>
+                        <Label>Plan Type *</Label>
                         <Input
                           value={phase.title}
                           onChange={(e) => updateConstructionPhase(phase.id, { title: e.target.value })}
-                          placeholder="e.g., Phase 1 - Foundation"
+                          placeholder="e.g., Foundation, Floor Plan A"
                         />
                         <p className="text-xs text-muted-foreground">
-                          This title will appear as a clickable tab on the property page
+                          This will appear as a tab on the property page
                         </p>
                       </div>
 
-                      <ImageUpload
-                        label="Phase Image"
-                        value={phase.image}
-                        onChange={(url) => updateConstructionPhase(phase.id, { image: url })}
-                        folder="properties/phases"
-                        aspectRatio="video"
-                        helpText="Upload a construction phase photo"
-                      />
+                      <div className="space-y-2">
+                        <Label>Images (multiple per plan)</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {getPlanImages(phase).map((url, imgIdx) => (
+                            <div key={imgIdx} className="relative">
+                              <ImageUpload
+                                label={`Image ${imgIdx + 1}`}
+                                value={url}
+                                onChange={(u) => updatePlanImage(phase.id, imgIdx, u)}
+                                folder="properties/phases"
+                                aspectRatio="video"
+                              />
+                              {getPlanImages(phase).length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute top-0 right-0 h-8 w-8 text-destructive"
+                                  onClick={() => removePlanImage(phase.id, imgIdx)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <Button type="button" variant="outline" size="sm" onClick={() => addPlanImage(phase.id)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add image
+                        </Button>
+                      </div>
 
                       <div className="space-y-2">
                         <Label>Description</Label>
                         <Textarea
                           value={phase.description}
                           onChange={(e) => updateConstructionPhase(phase.id, { description: e.target.value })}
-                          placeholder="Additional details about this construction phase..."
+                          placeholder="Additional details about this plan..."
                           rows={3}
                         />
                       </div>
@@ -995,7 +1043,7 @@ export default function CreatePropertyPage() {
 
                 <Button variant="outline" onClick={addConstructionPhase} className="w-full border-dashed bg-transparent">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Construction Phase Tab
+                  Add Project Plan
                 </Button>
               </div>
             </CardContent>

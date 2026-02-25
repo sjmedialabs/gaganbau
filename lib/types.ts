@@ -286,7 +286,10 @@ export interface PropertyExpert {
 export interface ConstructionPhase {
   id: string
   title: string
-  image: string
+  /** Multiple images per plan. When saving, always use images[]. Legacy: image (single) is normalized to images on read. */
+  images?: string[]
+  /** @deprecated Use images[] instead. Normalized to images when present. */
+  image?: string
   description?: string
 }
 

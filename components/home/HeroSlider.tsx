@@ -157,9 +157,9 @@ export function HeroSlider({ slides, animation = "fade", autoPlaySpeed = 6000 }:
         </div>
       ))}
 
-      {/* Hero content card - bottom right, 50px margin */}
+      {/* Hero content card - bottom left, 50px margin */}
       <div
-        className={`absolute bottom-[50px] right-[50px] z-10 max-w-md transition-all duration-500 ease-out ${
+        className={`absolute bottom-[50px] left-[50px] z-10 max-w-md transition-all duration-500 ease-out ${
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >

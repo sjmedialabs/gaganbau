@@ -70,7 +70,7 @@ export default async function PropertyDetailPage({ params }: Props) {
       {/* 5. Key Specifications - Table layout */}
       <PropertySpecs property={property} />
 
-      {/* 6. Construction Phases - Tabbed image viewer */}
+      {/* 6. Project Plans - Plan tabs + image viewer (next/prev = same plan images) */}
       <PropertyPhases property={property} />
 
       {/* 7. Location - Map + highlights + description */}
