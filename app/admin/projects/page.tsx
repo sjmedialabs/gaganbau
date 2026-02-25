@@ -79,7 +79,7 @@ export default function ProjectsEditor() {
       description: "Enter project description here.",
       buttonText: "Explore More",
       buttonLink: "/projects/new-project",
-      images: ["", "", ""],
+      images: [""],
       order: projects.length + 1,
       isActive: true,
     }
@@ -102,7 +102,21 @@ export default function ProjectsEditor() {
     const project = projects.find((p) => p.id === projectId)
     if (!project) return
     const newImages = [...project.images]
+    if (imageIndex >= newImages.length) newImages.length = imageIndex + 1
     newImages[imageIndex] = value
+    updateProject(projectId, { images: newImages })
+  }
+
+  const addProjectImage = (projectId: string) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (!project) return
+    updateProject(projectId, { images: [...project.images, ""] })
+  }
+
+  const removeProjectImage = (projectId: string, imageIndex: number) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (!project || project.images.length <= 1) return
+    const newImages = project.images.filter((_, i) => i !== imageIndex)
     updateProject(projectId, { images: newImages })
   }
 
@@ -219,19 +233,41 @@ export default function ProjectsEditor() {
 
                 {/* Images */}
                 <div className="border-t pt-6">
-                  <h3 className="font-semibold mb-4">Project Images (3 required)</h3>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {[0, 1, 2].map((imageIndex) => (
-                      <ImageUpload
-                        key={imageIndex}
-                        label={`Image ${imageIndex + 1}`}
-                        value={project.images[imageIndex] || ""}
-                        onChange={(url) => updateProjectImage(project.id, imageIndex, url)}
-                        folder="projects"
-                        aspectRatio="video"
-                      />
+                  <h3 className="font-semibold mb-4">Project Images (at least 1)</h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {project.images.map((_, imageIndex) => (
+                      <div key={imageIndex} className="relative">
+                        <ImageUpload
+                          label={`Image ${imageIndex + 1}`}
+                          value={project.images[imageIndex] || ""}
+                          onChange={(url) => updateProjectImage(project.id, imageIndex, url)}
+                          folder="projects"
+                          aspectRatio="video"
+                        />
+                        {project.images.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-0 right-0 h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => removeProjectImage(project.id, imageIndex)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     ))}
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => addProjectImage(project.id)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add image
+                  </Button>
                 </div>
               </CardContent>
             </Card>

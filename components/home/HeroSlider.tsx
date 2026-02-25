@@ -157,27 +157,26 @@ export function HeroSlider({ slides, animation = "fade", autoPlaySpeed = 6000 }:
         </div>
       ))}
 
-      {/* Black overlay for navbar and text visibility */}
-      <div className="absolute inset-0 bg-black/40 z-[3]" aria-hidden />
-
-      {/* Content with smooth fade */}
-      <div 
-        className={`relative z-10 h-full flex flex-col items-center justify-center text-center px-6 transition-all duration-500 ease-out ${
+      {/* Hero content card - bottom right, 50px margin */}
+      <div
+        className={`absolute bottom-[50px] right-[50px] z-10 max-w-md transition-all duration-500 ease-out ${
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <h1 className="text-shadow-md font-aurallia text-4xl md:text-5xl lg:text-7xl text-white mb-4 text-balance tracking-wide">
-          {slide.title}
-        </h1>
-        <p className="text-shadow-md text-white text-lg md:text-xl mb-8 font-light">
-          {slide.subtitle}
-        </p>
-        <Link
-          href={slide.buttonLink}
-          className="bg-gold hover:bg-gold-dark text-white px-8 py-3 text-sm font-medium transition-all duration-300 btn-hover-shine btn-hover-lift"
-        >
-          {slide.buttonText}
-        </Link>
+        <div className="bg-black/30 backdrop-blur-md rounded-lg border border-white/10 p-6 md:p-8 shadow-xl">
+          <h1 className="font-aurallia text-3xl md:text-4xl lg:text-5xl text-white mb-3 text-balance tracking-wide">
+            {slide.title}
+          </h1>
+          <p className="text-white/90 text-base md:text-lg mb-6 font-light">
+            {slide.subtitle}
+          </p>
+          <Link
+            href={slide.buttonLink}
+            className="inline-block bg-gold hover:bg-gold-dark text-white px-6 py-2.5 text-sm font-medium transition-all duration-300 btn-hover-shine btn-hover-lift"
+          >
+            {slide.buttonText}
+          </Link>
+        </div>
       </div>
 
       {/* Pagination */}

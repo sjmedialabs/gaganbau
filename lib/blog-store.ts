@@ -38,6 +38,13 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   return doc.posts
 }
 
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!slug || typeof slug !== "string") return null
+  const posts = await getBlogPosts()
+  const normalized = slug.trim().toLowerCase()
+  return posts.find((p) => p.slug?.trim().toLowerCase() === normalized) ?? null
+}
+
 export async function getBlogPageHero(): Promise<BlogPageHero> {
   const doc = await getBlogDoc()
   return doc.hero ?? defaultBlogHero

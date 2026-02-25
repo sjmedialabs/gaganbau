@@ -14,10 +14,21 @@ import { defaultBlogPosts } from "@/lib/default-blog-posts"
 import { defaultBlogHero } from "@/lib/default-blog-hero"
 import { ImageUpload } from "@/components/admin/ImageUpload"
 
+function slugify(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "post"
+}
+
 function newPost(): BlogPost {
+  const id = `blog-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
   return {
-    id: `blog-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    slug: "new-post",
+    id,
+    slug: `new-post-${id.slice(-6)}`,
     title: "New Blog Post",
     excerpt: "",
     category: "News",
@@ -63,10 +74,23 @@ export default function BlogEditor() {
   const handleSave = async () => {
     setSaving(true)
     try {
+      const seen = new Set<string>()
+      const postsToSave = posts.map((p) => {
+        let slug = (p.slug || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+        if (!slug) slug = slugify(p.title || "post")
+        let finalSlug = slug
+        let n = 0
+        while (seen.has(finalSlug)) {
+          n += 1
+          finalSlug = `${slug}-${n}`
+        }
+        seen.add(finalSlug)
+        return { ...p, slug: finalSlug }
+      })
       const res = await fetch("/api/blog", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ posts, hero }),
+        body: JSON.stringify({ posts: postsToSave, hero }),
       })
       if (res.ok) {
         toast.success("Blog saved successfully!")
@@ -214,22 +238,31 @@ export default function BlogEditor() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Slug (URL)</Label>
-                  <Input
-                    value={post.slug}
-                    onChange={(e) => updatePost(post.id, { slug: e.target.value.replace(/\s+/g, "-").toLowerCase() })}
-                    placeholder="my-post-slug"
-                  />
-                </div>
+                <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
                     value={post.title}
-                    onChange={(e) => updatePost(post.id, { title: e.target.value })}
+                    onChange={(e) => {
+                      const title = e.target.value
+                      const slug = !post.slug || post.slug === "new-post" || post.slug.startsWith("new-post-")
+                        ? slugify(title || "post")
+                        : post.slug
+                      updatePost(post.id, { title, slug })
+                    }}
                     placeholder="Post title"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>URL slug</Label>
+                  <Input
+                    value={post.slug}
+                    onChange={(e) => updatePost(post.id, { slug: e.target.value.replace(/\s+/g, "-").toLowerCase().replace(/[^a-z0-9-]/g, "") })}
+                    placeholder="auto-from-title"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Post URL: /blog/{post.slug || "…"}
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
