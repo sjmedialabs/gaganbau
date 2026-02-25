@@ -6,7 +6,7 @@ import { getHomePageContent } from "@/lib/content-store"
 import { getAllProperties } from "@/lib/properties-store"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Building2, Filter, Plus } from "lucide-react"
+import { ArrowRight, Building2, Filter } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -49,21 +49,13 @@ export default async function ProjectsPage() {
       {/* Hero Section */}
       <section className="pt-28 pb-16 bg-navy">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
-                Our Projects
-              </h1>
-              <p className="text-white/70 max-w-2xl text-lg">
-                Discover our complete portfolio of premium real estate developments. From properties currently on sale to upcoming projects and our successful completions.
-              </p>
-            </div>
-            <Link href="/admin/properties/create">
-              <Button className="bg-gold hover:bg-gold/90 text-white flex items-center gap-2 whitespace-nowrap">
-                <Plus className="w-4 h-4" />
-                Add Project
-              </Button>
-            </Link>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
+              Our Projects
+            </h1>
+            <p className="text-white/70 max-w-2xl text-lg">
+              Discover our complete portfolio of premium real estate developments. From properties currently on sale to upcoming projects and our successful completions.
+            </p>
           </div>
         </div>
       </section>

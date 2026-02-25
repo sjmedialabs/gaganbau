@@ -165,13 +165,13 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
           {/* Right: Thumbnails grid */}
           <div className="flex-1 min-w-0">
             {images.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {images.map((src, index) => (
                   <button
                     type="button"
                     key={index}
                     onClick={() => openModal(index)}
-                    className="aspect-video rounded-md overflow-hidden bg-white/5 border border-white/10 hover:border-gold/50 transition-all focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-navy"
+                    className="aspect-[4/3] rounded-md overflow-hidden bg-white/5 border border-white/10 hover:border-gold/50 transition-all focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-navy"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -190,22 +190,6 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
                 </span>
               </div>
             )}
-
-            <div className="mt-6 text-center">
-              <h3 className="text-lg font-medium text-white">
-                {activePlan.title}
-              </h3>
-              {activePlan.description && (
-                <p className="text-white/60 text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
-                  {activePlan.description}
-                </p>
-              )}
-              {images.length > 0 && (
-                <p className="text-white/30 text-xs mt-4">
-                  Click a thumbnail to view full size
-                </p>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -287,9 +271,22 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
             />
           </div>
 
-          <p className="text-center text-white/50 text-sm pb-4">
-            {scale > 1 ? "Drag to pan · Zoom step by step with buttons" : "Use zoom buttons for step-by-step zoom"}
-          </p>
+          {/* Content below image in modal: title + description */}
+          <div className="shrink-0 px-4 pb-6 pt-2 text-center border-t border-white/10">
+            {activePlan.title && (
+              <h3 className="text-lg font-medium text-white">
+                {activePlan.title}
+              </h3>
+            )}
+            {activePlan.description && (
+              <p className="text-white/60 text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
+                {activePlan.description}
+              </p>
+            )}
+            <p className="text-white/40 text-xs mt-4">
+              {scale > 1 ? "Drag to pan · Zoom step by step with buttons" : "Use zoom buttons for step-by-step zoom"}
+            </p>
+          </div>
         </div>
       )}
     </section>
