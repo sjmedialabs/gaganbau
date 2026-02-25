@@ -130,7 +130,7 @@ export default function PressEditor() {
               <Input
                 value={press.label}
                 onChange={(e) => setPress({ ...press, label: e.target.value })}
-                placeholder="Press Release"
+                placeholder="Enter section label"
               />
             </div>
             <div className="space-y-2">
@@ -138,7 +138,7 @@ export default function PressEditor() {
               <Input
                 value={press.title}
                 onChange={(e) => setPress({ ...press, title: e.target.value })}
-                placeholder="Expert tips and insights..."
+                placeholder="Enter description"
               />
             </div>
             <div className="space-y-2">
@@ -146,7 +146,7 @@ export default function PressEditor() {
               <Input
                 value={press.viewAllLink}
                 onChange={(e) => setPress({ ...press, viewAllLink: e.target.value })}
-                placeholder="/press"
+                placeholder="Enter view all link"
               />
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function PressEditor() {
                       <Input
                         value={item.date}
                         onChange={(e) => updateItem(item.id, { date: e.target.value })}
-                        placeholder="January 20, 2026"
+                        placeholder="Enter date"
                       />
                     </div>
                     <div className="md:col-span-2 space-y-2">
@@ -176,7 +176,7 @@ export default function PressEditor() {
                       <Input
                         value={item.title}
                         onChange={(e) => updateItem(item.id, { title: e.target.value })}
-                        placeholder="PRESS: TITLE HERE"
+                        placeholder="Enter article title"
                       />
                     </div>
                     <div className="space-y-2">
@@ -184,7 +184,7 @@ export default function PressEditor() {
                       <Input
                         value={item.link}
                         onChange={(e) => updateItem(item.id, { link: e.target.value })}
-                        placeholder="/press/article-slug"
+                        placeholder="Enter article link"
                       />
                     </div>
                   </div>

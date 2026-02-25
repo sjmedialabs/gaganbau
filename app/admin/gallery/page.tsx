@@ -331,7 +331,7 @@ export default function AdminGalleryPage() {
                   onValueChange={(value) => setNewAlbum({ ...newAlbum, propertyId: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a property" />
+                    <SelectValue placeholder="Select property" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableProperties.map((property) => (
@@ -558,7 +558,7 @@ export default function AdminGalleryPage() {
                         </div>
 
                         <Input
-                          placeholder="Add caption..."
+                          placeholder="Enter caption"
                           value={image.caption || ""}
                           onChange={(e) => handleUpdateCaption(image.id, e.target.value)}
                           className="bg-white/90 text-foreground text-xs h-8"

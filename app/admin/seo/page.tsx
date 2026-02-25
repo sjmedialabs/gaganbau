@@ -123,7 +123,7 @@ export default function SEOEditor() {
                   id="meta-title"
                   value={seo.metaTitle}
                   onChange={(e) => setSeo({ ...seo, metaTitle: e.target.value })}
-                  placeholder="Gagan Bau GmbH - Rising With Vision"
+                  placeholder="Enter meta title"
                 />
                 <p className="text-xs text-muted-foreground">
                   Optimal length: 50-60 characters
@@ -141,7 +141,7 @@ export default function SEOEditor() {
                   id="meta-description"
                   value={seo.metaDescription}
                   onChange={(e) => setSeo({ ...seo, metaDescription: e.target.value })}
-                  placeholder="Luxury living where comfort meets timeless style..."
+                  placeholder="Enter meta description"
                   rows={3}
                 />
                 <p className="text-xs text-muted-foreground">
@@ -155,7 +155,7 @@ export default function SEOEditor() {
                   id="canonical"
                   value={seo.canonicalUrl}
                   onChange={(e) => setSeo({ ...seo, canonicalUrl: e.target.value })}
-                  placeholder="https://gaganbau.de"
+                  placeholder="Enter canonical URL"
                 />
               </div>
 

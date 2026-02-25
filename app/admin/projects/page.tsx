@@ -176,7 +176,7 @@ export default function ProjectsEditor() {
                     <Input
                       value={project.label}
                       onChange={(e) => updateProject(project.id, { label: e.target.value })}
-                      placeholder="OUR CONCURRENT PROJECTS(3D)"
+                      placeholder="Enter section title"
                     />
                   </div>
                   <div className="space-y-2">
@@ -197,7 +197,7 @@ export default function ProjectsEditor() {
                     <Textarea
                       value={project.title}
                       onChange={(e) => updateProject(project.id, { title: e.target.value })}
-                      placeholder="ReHomes\nThe Butterfly"
+                      placeholder="Enter project names"
                       rows={2}
                     />
                   </div>
@@ -206,7 +206,7 @@ export default function ProjectsEditor() {
                     <Textarea
                       value={project.description}
                       onChange={(e) => updateProject(project.id, { description: e.target.value })}
-                      placeholder="Project description..."
+                      placeholder="Enter description"
                       rows={2}
                     />
                   </div>
@@ -218,7 +218,7 @@ export default function ProjectsEditor() {
                     <Input
                       value={project.buttonText}
                       onChange={(e) => updateProject(project.id, { buttonText: e.target.value })}
-                      placeholder="Explore More"
+                      placeholder="Enter button text"
                     />
                   </div>
                   <div className="space-y-2">
@@ -226,7 +226,7 @@ export default function ProjectsEditor() {
                     <Input
                       value={project.buttonLink}
                       onChange={(e) => updateProject(project.id, { buttonLink: e.target.value })}
-                      placeholder="/projects/project-slug"
+                      placeholder="Enter button link"
                     />
                   </div>
                 </div>

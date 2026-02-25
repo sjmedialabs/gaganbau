@@ -170,7 +170,7 @@ export default function BlogEditor() {
               <Input
                 value={hero.tagline}
                 onChange={(e) => setHero({ ...hero, tagline: e.target.value })}
-                placeholder="Insights & Stories"
+                placeholder="Enter hero label"
               />
             </div>
             <div className="space-y-2">
@@ -178,7 +178,7 @@ export default function BlogEditor() {
               <Input
                 value={hero.title}
                 onChange={(e) => setHero({ ...hero, title: e.target.value })}
-                placeholder="Our Blog"
+                placeholder="Enter hero title"
               />
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function BlogEditor() {
             <Textarea
               value={hero.description}
               onChange={(e) => setHero({ ...hero, description: e.target.value })}
-              placeholder="News, perspectives..."
+              placeholder="Enter hero description"
               rows={2}
             />
           </div>
@@ -250,7 +250,7 @@ export default function BlogEditor() {
                         : post.slug
                       updatePost(post.id, { title, slug })
                     }}
-                    placeholder="Post title"
+                    placeholder="Enter post title"
                   />
                 </div>
                 <div className="space-y-2">
@@ -258,7 +258,7 @@ export default function BlogEditor() {
                   <Input
                     value={post.slug}
                     onChange={(e) => updatePost(post.id, { slug: e.target.value.replace(/\s+/g, "-").toLowerCase().replace(/[^a-z0-9-]/g, "") })}
-                    placeholder="auto-from-title"
+                    placeholder="Enter slug"
                   />
                   <p className="text-xs text-muted-foreground">
                     Post URL: /blog/{post.slug || "…"}
@@ -270,7 +270,7 @@ export default function BlogEditor() {
                 <Textarea
                   value={post.excerpt}
                   onChange={(e) => updatePost(post.id, { excerpt: e.target.value })}
-                  placeholder="Short summary..."
+                  placeholder="Enter excerpt"
                   rows={2}
                 />
               </div>
@@ -280,7 +280,7 @@ export default function BlogEditor() {
                   <Input
                     value={post.category}
                     onChange={(e) => updatePost(post.id, { category: e.target.value })}
-                    placeholder="e.g. Sustainability"
+                    placeholder="Enter category"
                   />
                 </div>
                 <div className="space-y-2">
@@ -288,7 +288,7 @@ export default function BlogEditor() {
                   <Input
                     value={post.author}
                     onChange={(e) => updatePost(post.id, { author: e.target.value })}
-                    placeholder="Author name"
+                    placeholder="Enter author name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -296,7 +296,7 @@ export default function BlogEditor() {
                   <Input
                     value={post.date}
                     onChange={(e) => updatePost(post.id, { date: e.target.value })}
-                    placeholder="January 15, 2026"
+                    placeholder="Enter date"
                   />
                 </div>
                 <div className="space-y-2">
@@ -304,7 +304,7 @@ export default function BlogEditor() {
                   <Input
                     value={post.readTime}
                     onChange={(e) => updatePost(post.id, { readTime: e.target.value })}
-                    placeholder="5 min read"
+                    placeholder="Enter read time"
                   />
                 </div>
               </div>

@@ -195,7 +195,7 @@ export default function LeadsPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search leads by name, email, or message..."
+                placeholder="Enter search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -203,7 +203,7 @@ export default function LeadsPage() {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -214,7 +214,7 @@ export default function LeadsPage() {
             </Select>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "oldest")}>
               <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Sort by" />
+                <SelectValue placeholder="Select sort order" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Newest First</SelectItem>
@@ -401,7 +401,7 @@ export default function LeadsPage() {
                     }}
                   >
                     <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Update Status" />
+                      <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="new">New</SelectItem>

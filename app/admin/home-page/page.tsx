@@ -169,7 +169,7 @@ export default function HomePageEditor() {
                           newNav[index] = { ...item, label: e.target.value }
                           setHeader({ ...header, navigation: newNav })
                         }}
-                        placeholder="Label"
+                        placeholder="Enter label"
                         className="flex-1 min-w-[100px]"
                       />
                       <Input
@@ -179,7 +179,7 @@ export default function HomePageEditor() {
                           newNav[index] = { ...item, href: e.target.value }
                           setHeader({ ...header, navigation: newNav })
                         }}
-                        placeholder="/path"
+                        placeholder="Enter path"
                         className="flex-1 min-w-[100px]"
                       />
                       <div className="flex items-center gap-1 shrink-0">
@@ -266,7 +266,7 @@ export default function HomePageEditor() {
                     id="concept-label"
                     value={concept.label}
                     onChange={(e) => setConcept({ ...concept, label: e.target.value })}
-                    placeholder="OUR CONCEPT"
+                    placeholder="Enter section label"
                   />
                 </div>
                 <div className="space-y-2">
@@ -295,7 +295,7 @@ export default function HomePageEditor() {
                       id="concept-button"
                       value={concept.buttonText}
                       onChange={(e) => setConcept({ ...concept, buttonText: e.target.value })}
-                      placeholder="Know More"
+                      placeholder="Enter button text"
                     />
                   </div>
                   <div className="space-y-2">
@@ -304,7 +304,7 @@ export default function HomePageEditor() {
                       id="concept-link"
                       value={concept.buttonLink}
                       onChange={(e) => setConcept({ ...concept, buttonLink: e.target.value })}
-                      placeholder="/about"
+                      placeholder="Enter button link"
                     />
                   </div>
                 </div>
@@ -345,7 +345,7 @@ export default function HomePageEditor() {
                       id="why-label"
                       value={whyChoose.label}
                       onChange={(e) => setWhyChoose({ ...whyChoose, label: e.target.value })}
-                      placeholder="Why Choose"
+                      placeholder="Enter section title"
                     />
                   </div>
                   <div className="space-y-2">
@@ -398,7 +398,7 @@ export default function HomePageEditor() {
                                 newItems[index] = { ...item, title: e.target.value }
                                 setWhyChoose({ ...whyChoose, items: newItems })
                               }}
-                              placeholder="EXPERIENCE DECADES"
+                              placeholder="Enter card title"
                             />
                           </div>
                           <div className="space-y-2">
@@ -440,7 +440,7 @@ export default function HomePageEditor() {
                   <Input
                     value={blog.label}
                     onChange={(e) => setBlog({ ...blog, label: e.target.value })}
-                    placeholder="Blog"
+                    placeholder="Enter section title"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
@@ -448,7 +448,7 @@ export default function HomePageEditor() {
                   <Input
                     value={blog.title}
                     onChange={(e) => setBlog({ ...blog, title: e.target.value })}
-                    placeholder="Insights and stories..."
+                    placeholder="Enter description"
                   />
                 </div>
                 <div className="space-y-2">
@@ -456,7 +456,7 @@ export default function HomePageEditor() {
                   <Input
                     value={blog.viewAllLink}
                     onChange={(e) => setBlog({ ...blog, viewAllLink: e.target.value })}
-                    placeholder="/blog"
+                    placeholder="Enter link"
                   />
                 </div>
               </div>

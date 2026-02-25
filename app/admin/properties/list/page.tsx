@@ -164,7 +164,7 @@ export default function PropertiesListPage() {
             <Filter className="w-4 h-4 text-muted-foreground" />
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by category" />
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>

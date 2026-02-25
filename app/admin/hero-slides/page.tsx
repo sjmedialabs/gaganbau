@@ -166,7 +166,7 @@ export default function HeroSlidesEditor() {
                         <Input
                           value={slide.title}
                           onChange={(e) => updateSlide(slide.id, { title: e.target.value })}
-                          placeholder="Rising With Vision"
+                          placeholder="Enter title"
                         />
                       </div>
                       <div className="space-y-2">
@@ -174,7 +174,7 @@ export default function HeroSlidesEditor() {
                         <Input
                           value={slide.subtitle}
                           onChange={(e) => updateSlide(slide.id, { subtitle: e.target.value })}
-                          placeholder="Your Next Level of Living"
+                          placeholder="Enter subtitle"
                         />
                       </div>
                     </div>
@@ -184,7 +184,7 @@ export default function HeroSlidesEditor() {
                         <Input
                           value={slide.buttonText}
                           onChange={(e) => updateSlide(slide.id, { buttonText: e.target.value })}
-                          placeholder="Discover More"
+                          placeholder="Enter button text"
                         />
                       </div>
                       <div className="space-y-2">
@@ -192,7 +192,7 @@ export default function HeroSlidesEditor() {
                         <Input
                           value={slide.buttonLink}
                           onChange={(e) => updateSlide(slide.id, { buttonLink: e.target.value })}
-                          placeholder="/projects"
+                          placeholder="Enter button link"
                         />
                       </div>
                     </div>

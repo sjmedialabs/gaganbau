@@ -163,11 +163,11 @@ export default function AboutPageEditor() {
               <ImageUpload label="Hero background image" value={content.hero.image || ""} onChange={(url) => setHero({ image: url })} folder="images" />
               <div className="space-y-2">
                 <Label>Label</Label>
-                <Input value={content.hero.label} onChange={(e) => setHero({ label: e.target.value })} placeholder="Our Vision" />
+                <Input value={content.hero.label} onChange={(e) => setHero({ label: e.target.value })} placeholder="Enter hero label" />
               </div>
               <div className="space-y-2">
                 <Label>Title</Label>
-                <Input value={content.hero.title} onChange={(e) => setHero({ title: e.target.value })} placeholder="About Excellence" />
+                <Input value={content.hero.title} onChange={(e) => setHero({ title: e.target.value })} placeholder="Enter hero title" />
               </div>
               <div className="space-y-2">
                 <Label>Subtitle</Label>
@@ -211,15 +211,15 @@ export default function AboutPageEditor() {
                         </Button>
                       </div>
                       <Select value={point.icon} onValueChange={(v) => updateVisionPoint(i, { icon: v })}>
-                        <SelectTrigger><SelectValue placeholder="Icon" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select icon" /></SelectTrigger>
                         <SelectContent>
                           {ICON_OPTIONS.map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <Input value={point.title} onChange={(e) => updateVisionPoint(i, { title: e.target.value })} placeholder="Title" />
-                      <Textarea value={point.description} onChange={(e) => updateVisionPoint(i, { description: e.target.value })} placeholder="Description" rows={3} />
+                      <Input value={point.title} onChange={(e) => updateVisionPoint(i, { title: e.target.value })} placeholder="Enter title" />
+                      <Textarea value={point.description} onChange={(e) => updateVisionPoint(i, { description: e.target.value })} placeholder="Enter description" rows={3} />
                     </div>
                   ))}
                 </div>
@@ -262,8 +262,8 @@ export default function AboutPageEditor() {
                 <Label>Section title</Label>
                 <Input value={content.responsibility.title} onChange={(e) => setResponsibility({ title: e.target.value })} />
               </div>
-              <Textarea value={content.responsibility.intro} onChange={(e) => setResponsibility({ intro: e.target.value })} placeholder="Intro paragraph" rows={2} />
-              <Textarea value={content.responsibility.intro2} onChange={(e) => setResponsibility({ intro2: e.target.value })} placeholder="Second paragraph" rows={2} />
+              <Textarea value={content.responsibility.intro} onChange={(e) => setResponsibility({ intro: e.target.value })} placeholder="Enter intro paragraph" rows={2} />
+              <Textarea value={content.responsibility.intro2} onChange={(e) => setResponsibility({ intro2: e.target.value })} placeholder="Enter second paragraph" rows={2} />
               <ImageUpload label="Section image" value={content.responsibility.image || ""} onChange={(url) => setResponsibility({ image: url })} folder="images" />
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-3">
@@ -289,8 +289,8 @@ export default function AboutPageEditor() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Input value={item.title} onChange={(e) => updateInitiative(i, { title: e.target.value })} placeholder="Title" />
-                      <Textarea value={item.description} onChange={(e) => updateInitiative(i, { description: e.target.value })} placeholder="Description" rows={2} />
+                      <Input value={item.title} onChange={(e) => updateInitiative(i, { title: e.target.value })} placeholder="Enter title" />
+                      <Textarea value={item.description} onChange={(e) => updateInitiative(i, { description: e.target.value })} placeholder="Enter description" rows={2} />
                     </div>
                   ))}
                 </div>
@@ -328,7 +328,7 @@ export default function AboutPageEditor() {
                 <div className="space-y-2">
                   {content.landPurchase.lookingFor.map((item, i) => (
                     <div key={i} className="flex gap-2">
-                      <Input value={item} onChange={(e) => updateLookingFor(i, e.target.value)} placeholder="Bullet item" />
+                      <Input value={item} onChange={(e) => updateLookingFor(i, e.target.value)} placeholder="Enter bullet item" />
                       <Button type="button" variant="ghost" size="icon" onClick={() => removeLookingFor(i)}>
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
@@ -338,7 +338,7 @@ export default function AboutPageEditor() {
               </div>
               <div className="border-t pt-4 space-y-4">
                 <Label>Contact card</Label>
-                <Input value={content.landPurchase.contactCardTitle} onChange={(e) => setLandPurchase({ contactCardTitle: e.target.value })} placeholder="Card title" />
+                <Input value={content.landPurchase.contactCardTitle} onChange={(e) => setLandPurchase({ contactCardTitle: e.target.value })} placeholder="Enter card title" />
                 <Textarea value={content.landPurchase.contactCardDescription} onChange={(e) => setLandPurchase({ contactCardDescription: e.target.value })} rows={2} />
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="space-y-2">

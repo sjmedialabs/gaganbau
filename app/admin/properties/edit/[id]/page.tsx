@@ -427,7 +427,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="projectName"
                     value={property.projectName}
                     onChange={(e) => updateProperty({ projectName: e.target.value })}
-                    placeholder="e.g., Linden Park"
+                    placeholder="Enter project name"
                   />
                 </div>
 
@@ -437,7 +437,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="slug"
                     value={property.slug}
                     onChange={(e) => updateProperty({ slug: e.target.value })}
-                    placeholder="auto-generated-from-name"
+                    placeholder="Enter URL slug"
                   />
                   <p className="text-xs text-muted-foreground">
                     URL: /projects/{property.slug}
@@ -450,7 +450,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="projectTagline"
                     value={property.projectTagline}
                     onChange={(e) => updateProperty({ projectTagline: e.target.value })}
-                    placeholder="e.g., MILBERTSHOFEN | AM HART"
+                    placeholder="Enter project tagline"
                   />
                 </div>
 
@@ -527,7 +527,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="heroTitle"
                     value={property.heroTitle}
                     onChange={(e) => updateProperty({ heroTitle: e.target.value })}
-                    placeholder="e.g., MILBERTSHOFEN - AT THE HEART"
+                    placeholder="Enter hero title"
                   />
                 </div>
 
@@ -537,7 +537,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="heroSubtitle"
                     value={property.heroSubtitle}
                     onChange={(e) => updateProperty({ heroSubtitle: e.target.value })}
-                    placeholder="e.g., LINDEN.PARK"
+                    placeholder="Enter hero subtitle"
                   />
                 </div>
 
@@ -570,7 +570,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="subtitle"
                     value={property.subtitle}
                     onChange={(e) => updateProperty({ subtitle: e.target.value })}
-                    placeholder="e.g., Condominiums in Milbertshofen - Am Hart"
+                    placeholder="Enter subtitle"
                   />
                 </div>
 
@@ -580,7 +580,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="livingTitle"
                     value={property.livingTitle}
                     onChange={(e) => updateProperty({ livingTitle: e.target.value })}
-                    placeholder="e.g., Living near the Panzerwiese"
+                    placeholder="Enter living section title"
                   />
                 </div>
 
@@ -590,7 +590,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="livingDescription"
                     value={property.livingDescription}
                     onChange={(e) => updateProperty({ livingDescription: e.target.value })}
-                    placeholder="Main description of the living experience..."
+                    placeholder="Enter living description"
                     rows={4}
                   />
                 </div>
@@ -601,7 +601,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="livingDescriptionExtended"
                     value={property.livingDescriptionExtended}
                     onChange={(e) => updateProperty({ livingDescriptionExtended: e.target.value })}
-                    placeholder="Additional details about the property..."
+                    placeholder="Enter extended description"
                     rows={4}
                   />
                 </div>
@@ -621,7 +621,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="specialFeaturesTitle"
                     value={property.specialFeaturesTitle}
                     onChange={(e) => updateProperty({ specialFeaturesTitle: e.target.value })}
-                    placeholder="e.g., Special features"
+                    placeholder="Enter section title"
                   />
                 </div>
 
@@ -631,7 +631,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       <Input
                         value={feature}
                         onChange={(e) => updateSpecialFeature(index, e.target.value)}
-                        placeholder="e.g., Close to nature, family-friendly"
+                        placeholder="Enter feature"
                       />
                       <Button
                         variant="outline"
@@ -664,7 +664,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="videoUrl"
                     value={property.videoUrl || ""}
                     onChange={(e) => updateProperty({ videoUrl: e.target.value })}
-                    placeholder="e.g., https://www.youtube.com/embed/VIDEO_ID"
+                    placeholder="Enter video embed URL"
                   />
                   <p className="text-xs text-muted-foreground">
                     Paste the embed URL from YouTube or Vimeo
@@ -677,7 +677,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="videoDescription"
                     value={property.videoDescription || ""}
                     onChange={(e) => updateProperty({ videoDescription: e.target.value })}
-                    placeholder="e.g., Take a walk with us through the land of joy..."
+                    placeholder="Enter video description"
                     rows={3}
                   />
                 </div>
@@ -699,7 +699,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         onValueChange={(value) => updateAmenity(amenity.id, { icon: value })}
                       >
                         <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Icon" />
+                          <SelectValue placeholder="Select icon" />
                         </SelectTrigger>
                         <SelectContent>
                           {AMENITY_ICONS.map((icon) => (
@@ -713,7 +713,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       <Input
                         value={amenity.name}
                         onChange={(e) => updateAmenity(amenity.id, { name: e.target.value })}
-                        placeholder="e.g., Swimming Pool"
+                        placeholder="Enter amenity name"
                         className="flex-1"
                       />
 
@@ -748,7 +748,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="metaTitle"
                     value={property.metaTitle}
                     onChange={(e) => updateProperty({ metaTitle: e.target.value })}
-                    placeholder="Page title for search engines"
+                    placeholder="Enter meta title"
                   />
                 </div>
 
@@ -758,7 +758,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="metaDescription"
                     value={property.metaDescription}
                     onChange={(e) => updateProperty({ metaDescription: e.target.value })}
-                    placeholder="Page description for search engines (150-160 characters)"
+                    placeholder="Enter meta description"
                     rows={3}
                   />
                 </div>
@@ -788,8 +788,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         helpText="Icon image"
                       />
                     </div>
-                    <Input value={item.title} onChange={(e) => updateHeroSpec(item.id, { title: e.target.value })} placeholder="Title" className="flex-1 min-w-[120px]" />
-                    <Input value={item.description} onChange={(e) => updateHeroSpec(item.id, { description: e.target.value })} placeholder="Description" className="flex-1 min-w-[180px]" />
+                    <Input value={item.title} onChange={(e) => updateHeroSpec(item.id, { title: e.target.value })} placeholder="Enter title" className="flex-1 min-w-[120px]" />
+                    <Input value={item.description} onChange={(e) => updateHeroSpec(item.id, { description: e.target.value })} placeholder="Enter description" className="flex-1 min-w-[180px]" />
                     <Button variant="outline" size="icon" onClick={() => removeHeroSpec(item.id)} className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 ))}
@@ -817,8 +817,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         helpText="Icon image"
                       />
                     </div>
-                    <Input value={item.title} onChange={(e) => updateKeySpec(item.id, { title: e.target.value })} placeholder="Title" className="flex-1 min-w-[120px]" />
-                    <Input value={item.description} onChange={(e) => updateKeySpec(item.id, { description: e.target.value })} placeholder="Description" className="flex-1 min-w-[180px]" />
+                    <Input value={item.title} onChange={(e) => updateKeySpec(item.id, { title: e.target.value })} placeholder="Enter title" className="flex-1 min-w-[120px]" />
+                    <Input value={item.description} onChange={(e) => updateKeySpec(item.id, { description: e.target.value })} placeholder="Enter description" className="flex-1 min-w-[180px]" />
                     <Button variant="outline" size="icon" onClick={() => removeKeySpec(item.id)} className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 ))}
@@ -844,7 +844,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="address"
                   value={property.specifications?.address}
                   onChange={(e) => updateSpecifications({ address: e.target.value })}
-                  placeholder="e.g., Martonstrasse 26, 80937 Munich"
+                  placeholder="Enter address"
                 />
                 <p className="text-xs text-muted-foreground">
                   Shown in the location block and in the hero bar when no hero specifications are set
@@ -856,7 +856,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="locationTitle"
                   value={property.locationTitle}
                   onChange={(e) => updateProperty({ locationTitle: e.target.value })}
-                  placeholder="e.g., THE LOCATION"
+                  placeholder="Enter location title"
                 />
               </div>
 
@@ -867,7 +867,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     <Input
                       value={highlight}
                       onChange={(e) => updateLocationHighlight(index, e.target.value)}
-                      placeholder="e.g., Vast, protected natural landscapes"
+                      placeholder="Enter location highlight"
                     />
                     <Button
                       variant="outline"
@@ -891,7 +891,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="locationDescription"
                   value={property.locationDescription}
                   onChange={(e) => updateProperty({ locationDescription: e.target.value })}
-                  placeholder="Detailed description of the location advantages..."
+                  placeholder="Enter location description"
                   rows={6}
                 />
               </div>
@@ -902,7 +902,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="mapEmbedUrl"
                   value={property.mapEmbedUrl}
                   onChange={(e) => updateProperty({ mapEmbedUrl: e.target.value })}
-                  placeholder="https://www.google.com/maps/embed?..."
+                  placeholder="Enter map embed URL"
                 />
                 <p className="text-xs text-muted-foreground">
                   Paste the embed URL from Google Maps
@@ -926,7 +926,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="constructionPhasesTitle"
                   value={property.constructionPhasesTitle}
                   onChange={(e) => updateProperty({ constructionPhasesTitle: e.target.value })}
-                  placeholder="e.g., Project Plans"
+                  placeholder="Enter construction section title"
                 />
               </div>
 
@@ -952,7 +952,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         <Input
                           value={phase.title}
                           onChange={(e) => updateConstructionPhase(phase.id, { title: e.target.value })}
-                          placeholder="e.g., Foundation, Floor Plan A"
+                          placeholder="Enter plan type"
                         />
                         <p className="text-xs text-muted-foreground">
                           This will appear as a tab on the property page
@@ -996,7 +996,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         <Textarea
                           value={phase.description}
                           onChange={(e) => updateConstructionPhase(phase.id, { description: e.target.value })}
-                          placeholder="Additional details about this plan..."
+                          placeholder="Enter plan description"
                           rows={3}
                         />
                       </div>
@@ -1027,7 +1027,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="consultationTitle"
                   value={property.consultationTitle}
                   onChange={(e) => updateProperty({ consultationTitle: e.target.value })}
-                  placeholder="e.g., SCHEDULE A PERSONAL CONSULTATION APPOINTMENT"
+                  placeholder="Enter consultation title"
                 />
               </div>
 
@@ -1038,7 +1038,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="consultationPhone"
                     value={property.consultationPhone}
                     onChange={(e) => updateProperty({ consultationPhone: e.target.value })}
-                    placeholder="e.g., 089 710 409 96"
+                    placeholder="Enter phone number"
                   />
                 </div>
 
@@ -1048,7 +1048,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     id="consultationEmail"
                     value={property.consultationEmail}
                     onChange={(e) => updateProperty({ consultationEmail: e.target.value })}
-                    placeholder="e.g., lindenpark@conceptbau.de"
+                    placeholder="Enter email"
                   />
                 </div>
               </div>
@@ -1059,7 +1059,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="consultationDisclaimer"
                   value={property.consultationDisclaimer}
                   onChange={(e) => updateProperty({ consultationDisclaimer: e.target.value })}
-                  placeholder="Legal disclaimer or additional information..."
+                  placeholder="Enter disclaimer"
                   rows={3}
                 />
               </div>
