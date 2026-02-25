@@ -193,7 +193,7 @@ export default function DatabasePage() {
                 </span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span className="text-sm">Press Releases</span>
+                <span className="text-sm">Blog</span>
                 <span className="text-xs px-2 py-1 rounded bg-muted">3 items</span>
               </div>
             </div>

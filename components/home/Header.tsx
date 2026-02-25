@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, Menu, X, ChevronRight } from "lucide-react"
 import type { HeaderContent, Property } from "@/lib/types"
+import { useLanguage } from "@/lib/language-context"
 
 interface HeaderProps {
   content: HeaderContent
@@ -16,9 +17,9 @@ interface CategoryPropertiesMap {
   "in-planning": Property[]
 }
 
-const categoryLabels: Record<string, string> = {
-  "on-sale": "On Sale",
-  "in-planning": "In Planning",
+const categoryKey: Record<string, string> = {
+  "on-sale": "categories.onSale",
+  "in-planning": "categories.inPlanning",
 }
 
 const categoryLinks: Record<string, string> = {
@@ -27,6 +28,7 @@ const categoryLinks: Record<string, string> = {
 }
 
 export function Header({ content, isTransparent = true, properties = [] }: HeaderProps) {
+  const { locale, setLocale, translateLabel, t } = useLanguage()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [languageOpen, setLanguageOpen] = useState(false)
   const [projectsOpen, setProjectsOpen] = useState(false)
@@ -71,7 +73,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
     if (!hasProperties) {
       return (
         <div className="p-6 text-center text-muted-foreground">
-          No properties available
+          {t("categories.noPropertiesAvailable")}
         </div>
       )
     }
@@ -87,13 +89,13 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
               onClick={() => setProjectsOpen(false)}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-navy uppercase tracking-wide">
-                  {categoryLabels[category]}
-                </span>
+<span className="text-sm font-semibold text-navy uppercase tracking-wide">
+                {t(categoryKey[category])}
+              </span>
                 <ChevronRight className="w-4 h-4 text-gold" />
               </div>
               <span className="text-xs text-muted-foreground mt-1 block">
-                {categorizedProperties[category].length} properties
+                {categorizedProperties[category].length} {t("categories.properties")}
               </span>
             </Link>
 
@@ -101,7 +103,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
             <div className="max-h-[300px] overflow-y-auto">
               {categorizedProperties[category].length === 0 ? (
                 <div className="px-5 py-4 text-sm text-muted-foreground">
-                  No properties yet
+                  {t("categories.noProperties")}
                 </div>
               ) : (
                 categorizedProperties[category].slice(0, 5).map((property) => (
@@ -128,7 +130,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                   className="block px-5 py-3 text-sm text-gold hover:text-gold-dark transition-colors font-medium"
                   onClick={() => setProjectsOpen(false)}
                 >
-                  View all {categorizedProperties[category].length} properties
+                  {t("common.viewAll")} {categorizedProperties[category].length} {t("categories.properties")}
                 </Link>
               )}
             </div>
@@ -183,7 +185,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                           : "text-white hover:text-gold"
                       }`}
                     >
-                      {item.label}
+                      {translateLabel(item.label)}
                       <ChevronDown className={`w-4 h-4 transition-transform ${projectsOpen ? "rotate-180" : ""}`} />
                     </Link>
 
@@ -209,7 +211,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                       : "text-white hover:text-gold"
                   }`}
                 >
-                  {item.label}
+                  {translateLabel(item.label)}
                 </Link>
               )
             })}
@@ -225,21 +227,25 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                     : "text-white hover:text-gold"
                 }`}
               >
-                {content.languages[0]?.code || "EN"}
+                {locale === "de" ? "DE" : "EN"}
                 <ChevronDown className="w-4 h-4" />
               </button>
               {languageOpen && (
                 <div className="absolute top-full right-0 mt-2 bg-white rounded shadow-lg py-2 min-w-[100px]">
-                  {content.languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      className="block w-full text-left px-4 py-2 text-sm text-navy hover:bg-muted transition-colors"
-                      onClick={() => setLanguageOpen(false)}
-                    >
-                      {lang.label}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    className="block w-full text-left px-4 py-2 text-sm text-navy hover:bg-muted transition-colors"
+                    onClick={() => { setLocale("en"); setLanguageOpen(false) }}
+                  >
+                    {t("language.en")}
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full text-left px-4 py-2 text-sm text-navy hover:bg-muted transition-colors"
+                    onClick={() => { setLocale("de"); setLanguageOpen(false) }}
+                  >
+                    {t("language.de")}
+                  </button>
                 </div>
               )}
             </div>
@@ -272,7 +278,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                       onClick={() => setMobileProjectsOpen(!mobileProjectsOpen)}
                       className="flex items-center justify-between w-full text-white text-base font-normal hover:text-gold transition-colors py-2"
                     >
-                      {item.label}
+                      {translateLabel(item.label)}
                       <ChevronDown className={`w-5 h-5 transition-transform ${mobileProjectsOpen ? "rotate-180" : ""}`} />
                     </button>
 
@@ -285,7 +291,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                               className="text-gold text-sm font-medium uppercase tracking-wide block py-1"
                               onClick={() => setMobileMenuOpen(false)}
                             >
-                              {categoryLabels[category]}
+                              {t(categoryKey[category])}
                             </Link>
                             <div className="mt-1 space-y-1">
                               {categorizedProperties[category].slice(0, 3).map((property) => (
@@ -314,20 +320,25 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
                   className="block text-white text-base font-normal hover:text-gold transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.label}
+                  {translateLabel(item.label)}
                 </Link>
               )
             })}
             <div className="pt-4 border-t border-white/10">
-              {content.languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  type="button"
-                  className="block w-full text-left text-white text-base py-2 hover:text-gold transition-colors"
-                >
-                  {lang.label}
-                </button>
-              ))}
+              <button
+                type="button"
+                className="block w-full text-left text-white text-base py-2 hover:text-gold transition-colors"
+                onClick={() => { setLocale("en"); setMobileMenuOpen(false) }}
+              >
+                {t("language.en")}
+              </button>
+              <button
+                type="button"
+                className="block w-full text-left text-white text-base py-2 hover:text-gold transition-colors"
+                onClick={() => { setLocale("de"); setMobileMenuOpen(false) }}
+              >
+                {t("language.de")}
+              </button>
             </div>
           </nav>
         </div>

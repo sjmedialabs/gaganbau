@@ -88,7 +88,7 @@ export function ImageUpload({
     <div className={`space-y-2 ${className}`}>
       <Label>{label}</Label>
       {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
-      <div className={`relative ${aspectClass} bg-muted rounded-lg overflow-hidden border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors`}>
+      <div className={`relative max-w-[160px] max-h-[100px] ${aspectClass} bg-muted rounded-lg overflow-hidden border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors`}>
         {value ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}

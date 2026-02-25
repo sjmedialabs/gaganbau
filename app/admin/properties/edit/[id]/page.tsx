@@ -32,11 +32,38 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/ImageUpload"
-import type { Property, PropertyCategory, PropertyStatus, ConstructionPhase, PropertyAmenity } from "@/lib/types"
+import type { Property, PropertyCategory, PropertyStatus, ConstructionPhase, PropertyAmenity, PropertySpecItem } from "@/lib/types"
+
+/** Build heroSpecifications and keySpecifications arrays from legacy specifications object. */
+function migrateLegacySpecs(data: Property): void {
+  const specs = data.specifications
+  if (!specs) return
+
+  const items: PropertySpecItem[] = []
+  const ts = () => `spec-${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+  if (specs.rooms) items.push({ id: ts(), icon: "Home", title: "Rooms", description: specs.rooms })
+  if (specs.livingArea) items.push({ id: ts(), icon: "Maximize", title: "Total Building Built-up Area", description: specs.livingArea })
+  if (specs.purchasePrice) items.push({ id: ts(), icon: "BadgeEuro", title: "Purchase Price", description: specs.purchasePrice })
+  if (specs.address) items.push({ id: ts(), icon: "MapPin", title: "Address", description: specs.address })
+  if (specs.availability?.length) {
+    specs.availability.forEach((a) => items.push({ id: ts(), icon: "CalendarCheck", title: "Unit Type", description: a }))
+  }
+
+  if (items.length === 0) return
+
+  if (!Array.isArray(data.heroSpecifications) || data.heroSpecifications.length === 0) {
+    data.heroSpecifications = items.slice(0, 5)
+  }
+  if (!Array.isArray(data.keySpecifications) || data.keySpecifications.length === 0) {
+    data.keySpecifications = [...items]
+  }
+}
 
 const AMENITY_ICONS = [
+  "Home", "Maximize", "BadgeEuro", "MapPin", "CalendarCheck", "Building2",
   "Trees", "Dumbbell", "Car", "ShieldCheck", "Waves", "Theater",
-  "Dog", "Goal", "TreePine", "BridgeIcon", "Baby", "Bike",
+  "Dog", "Goal", "TreePine", "Baby", "Bike",
   "Gamepad2", "Music", "Wifi", "Zap", "Heart", "Sun",
   "Coffee", "BookOpen", "Utensils", "Flower2", "Mountain", "Umbrella",
 ]
@@ -54,6 +81,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         const res = await fetch(`/api/properties/${id}`)
         if (res.ok) {
           const data = await res.json()
+          if (data) {
+            if (!Array.isArray(data.heroSpecifications)) data.heroSpecifications = []
+            if (!Array.isArray(data.keySpecifications)) data.keySpecifications = []
+            migrateLegacySpecs(data)
+          }
           setProperty(data)
         } else {
           toast.error("Property not found")
@@ -221,6 +253,36 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     updateSpecifications({
       availability: property?.specifications?.availability?.filter((_, i) => i !== index),
     })
+  }
+
+  const addHeroSpec = () => {
+    const list = property?.heroSpecifications ?? []
+    if (list.length >= 5) return
+    updateProperty({
+      heroSpecifications: [...list, { id: `hero-spec-${Date.now()}`, icon: "Home", title: "", description: "" }],
+    })
+  }
+  const updateHeroSpec = (id: string, updates: Partial<PropertySpecItem>) => {
+    updateProperty({
+      heroSpecifications: (property?.heroSpecifications ?? []).map((s) => (s.id === id ? { ...s, ...updates } : s)),
+    })
+  }
+  const removeHeroSpec = (id: string) => {
+    updateProperty({ heroSpecifications: (property?.heroSpecifications ?? []).filter((s) => s.id !== id) })
+  }
+
+  const addKeySpec = () => {
+    updateProperty({
+      keySpecifications: [...(property?.keySpecifications ?? []), { id: `key-spec-${Date.now()}`, icon: "Home", title: "", description: "" }],
+    })
+  }
+  const updateKeySpec = (id: string, updates: Partial<PropertySpecItem>) => {
+    updateProperty({
+      keySpecifications: (property?.keySpecifications ?? []).map((s) => (s.id === id ? { ...s, ...updates } : s)),
+    })
+  }
+  const removeKeySpec = (id: string) => {
+    updateProperty({ keySpecifications: (property?.keySpecifications ?? []).filter((s) => s.id !== id) })
   }
 
   // Gallery handlers
@@ -521,6 +583,49 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               </CardContent>
             </Card>
 
+            {/* Special Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Special Features</CardTitle>
+                <CardDescription>Highlight key features of the property</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="specialFeaturesTitle">Section Title</Label>
+                  <Input
+                    id="specialFeaturesTitle"
+                    value={property.specialFeaturesTitle}
+                    onChange={(e) => updateProperty({ specialFeaturesTitle: e.target.value })}
+                    placeholder="e.g., Special features"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  {property.specialFeatures?.map((feature, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={feature}
+                        onChange={(e) => updateSpecialFeature(index, e.target.value)}
+                        placeholder="e.g., Close to nature, family-friendly"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeSpecialFeature(index)}
+                        className="flex-shrink-0 text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" onClick={addSpecialFeature}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Feature
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Video Section */}
             <Card>
               <CardHeader>
@@ -606,49 +711,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               </CardContent>
             </Card>
 
-            {/* Special Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Special Features</CardTitle>
-                <CardDescription>Highlight key features of the property</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="specialFeaturesTitle">Section Title</Label>
-                  <Input
-                    id="specialFeaturesTitle"
-                    value={property.specialFeaturesTitle}
-                    onChange={(e) => updateProperty({ specialFeaturesTitle: e.target.value })}
-                    placeholder="e.g., Special features"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  {property.specialFeatures?.map((feature, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={feature}
-                        onChange={(e) => updateSpecialFeature(index, e.target.value)}
-                        placeholder="e.g., Close to nature, family-friendly"
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => removeSpecialFeature(index)}
-                        className="flex-shrink-0 text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button variant="outline" onClick={addSpecialFeature}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Feature
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card>
               <CardHeader>
                 <CardTitle>SEO Settings</CardTitle>
@@ -682,80 +744,65 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
         {/* Specifications Tab */}
         <TabsContent value="specs">
-          <Card>
-            <CardHeader>
-              <CardTitle>Property Specifications</CardTitle>
-              <CardDescription>Rooms, area, price, and availability</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="rooms">Rooms (ZIMMER)</Label>
-                  <Input
-                    id="rooms"
-                    value={property.specifications?.rooms}
-                    onChange={(e) => updateSpecifications({ rooms: e.target.value })}
-                    placeholder="e.g., 1.5 - 4 Zimmer"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="livingArea">Living Area (WOHNFLACHE)</Label>
-                  <Input
-                    id="livingArea"
-                    value={property.specifications?.livingArea}
-                    onChange={(e) => updateSpecifications({ livingArea: e.target.value })}
-                    placeholder="e.g., approx. 34 - 111 m2"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="purchasePrice">Purchase Price (PURCHASE PRICE)</Label>
-                <Input
-                  id="purchasePrice"
-                  value={property.specifications?.purchasePrice}
-                  onChange={(e) => updateSpecifications({ purchasePrice: e.target.value })}
-                  placeholder="e.g., 369,000 - 1,179,000 EUR"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={property.specifications?.address}
-                  onChange={(e) => updateSpecifications({ address: e.target.value })}
-                  placeholder="e.g., Martonstrasse 26, 80937 Munich"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label>Availability (BEZUGSFERTIG)</Label>
-                {property.specifications?.availability?.map((item, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={item}
-                      onChange={(e) => updateAvailability(index, e.target.value)}
-                      placeholder="e.g., 1. BA: ready for occupancy, sold out"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeAvailability(index)}
-                      className="flex-shrink-0 text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Hero specifications (below hero)</CardTitle>
+                <CardDescription>Up to 5 items. Each needs icon, title, and description.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(property.heroSpecifications ?? []).map((item) => (
+                  <div key={item.id} className="flex flex-wrap items-start gap-3 p-4 border rounded-lg">
+                    <div className="w-24 shrink-0">
+                      <ImageUpload
+                        label="Icon"
+                        value={item.iconImage ?? ""}
+                        onChange={(url) => updateHeroSpec(item.id, { iconImage: url })}
+                        folder="properties/spec-icons"
+                        aspectRatio="square"
+                        helpText="Icon image"
+                      />
+                    </div>
+                    <Input value={item.title} onChange={(e) => updateHeroSpec(item.id, { title: e.target.value })} placeholder="Title" className="flex-1 min-w-[120px]" />
+                    <Input value={item.description} onChange={(e) => updateHeroSpec(item.id, { description: e.target.value })} placeholder="Description" className="flex-1 min-w-[180px]" />
+                    <Button variant="outline" size="icon" onClick={() => removeHeroSpec(item.id)} className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 ))}
-                <Button variant="outline" onClick={addAvailability}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Availability Status
+                <Button variant="outline" onClick={addHeroSpec} disabled={(property.heroSpecifications?.length ?? 0) >= 5}>
+                  <Plus className="w-4 h-4 mr-2" /> Add hero spec (max 5)
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Key specifications (below amenities)</CardTitle>
+                <CardDescription>Unlimited items. Each needs icon, title, and description. Shown in two columns on the project page.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(property.keySpecifications ?? []).map((item) => (
+                  <div key={item.id} className="flex flex-wrap items-start gap-3 p-4 border rounded-lg">
+                    <div className="w-24 shrink-0">
+                      <ImageUpload
+                        label="Icon"
+                        value={item.iconImage ?? ""}
+                        onChange={(url) => updateKeySpec(item.id, { iconImage: url })}
+                        folder="properties/spec-icons"
+                        aspectRatio="square"
+                        helpText="Icon image"
+                      />
+                    </div>
+                    <Input value={item.title} onChange={(e) => updateKeySpec(item.id, { title: e.target.value })} placeholder="Title" className="flex-1 min-w-[120px]" />
+                    <Input value={item.description} onChange={(e) => updateKeySpec(item.id, { description: e.target.value })} placeholder="Description" className="flex-1 min-w-[180px]" />
+                    <Button variant="outline" size="icon" onClick={() => removeKeySpec(item.id)} className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                ))}
+                <Button variant="outline" onClick={addKeySpec}>
+                  <Plus className="w-4 h-4 mr-2" /> Add key specification
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Location Tab */}
@@ -763,9 +810,21 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           <Card>
             <CardHeader>
               <CardTitle>Location Information</CardTitle>
-              <CardDescription>Location highlights and map</CardDescription>
+              <CardDescription>Address, highlights, and map</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="address">Address (for location section)</Label>
+                <Input
+                  id="address"
+                  value={property.specifications?.address}
+                  onChange={(e) => updateSpecifications({ address: e.target.value })}
+                  placeholder="e.g., Martonstrasse 26, 80937 Munich"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown in the location block and in the hero bar when no hero specifications are set
+                </p>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="locationTitle">Location Section Title</Label>
                 <Input
@@ -885,7 +944,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       />
 
                       <div className="space-y-2">
-                        <Label>Description (optional)</Label>
+                        <Label>Description</Label>
                         <Textarea
                           value={phase.description}
                           onChange={(e) => updateConstructionPhase(phase.id, { description: e.target.value })}

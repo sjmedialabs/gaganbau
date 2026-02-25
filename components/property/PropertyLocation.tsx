@@ -1,16 +1,13 @@
 "use client"
 
-import { useState } from "react"
 import type { Property } from "@/lib/types"
-import { Button } from "@/components/ui/button"
-import { MapPin, Check, Navigation } from "lucide-react"
+import { MapPin, Check } from "lucide-react"
 
 interface PropertyLocationProps {
   property: Property
 }
 
 export function PropertyLocation({ property }: PropertyLocationProps) {
-  const [mapLoaded, setMapLoaded] = useState(false)
 
   const hasContent =
     property.locationTitle ||
@@ -92,39 +89,17 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
           <div className="lg:col-span-3">
             {property.mapEmbedUrl ? (
               <div className="aspect-[4/3] lg:aspect-auto lg:h-full min-h-[400px] w-full rounded-lg overflow-hidden border border-border bg-muted">
-                {mapLoaded ? (
-                  <iframe
-                    src={property.mapEmbedUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0, minHeight: "400px" }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Map of ${property.projectName}`}
-                    className="w-full h-full"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center min-h-[400px]">
-                    <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-4">
-                      <MapPin className="w-8 h-8 text-gold" />
-                    </div>
-                    <p className="text-navy font-medium mb-2">
-                      Interactive Map
-                    </p>
-                    <p className="text-muted-foreground text-sm mb-5 max-w-xs">
-                      View the exact location of {property.projectName} on the
-                      map
-                    </p>
-                    <Button
-                      onClick={() => setMapLoaded(true)}
-                      className="bg-gold hover:bg-gold-dark text-white"
-                    >
-                      <Navigation className="w-4 h-4 mr-2" />
-                      Load Map
-                    </Button>
-                  </div>
-                )}
+                <iframe
+                  src={property.mapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, minHeight: "400px" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Map of ${property.projectName}`}
+                  className="w-full h-full"
+                />
               </div>
             ) : (
               /* No map URL - show a placeholder with address */

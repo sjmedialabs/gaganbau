@@ -108,6 +108,8 @@ export const translations = {
       comingSoon: "Coming Soon",
       comingSoonDesc: "This page is currently under construction. Please check back soon for updates.",
       weAreWorking: "We are working hard to bring you this content. In the meantime, feel free to explore our other pages or contact us for more information.",
+      adminCms: "Admin CMS",
+      viewAll: "View all",
     },
     footer: {
       getSocial: "Get Social",
@@ -115,6 +117,19 @@ export const translations = {
     language: {
       en: "English",
       de: "Deutsch",
+      signOut: "Sign Out",
+    },
+    admin: {
+      dashboard: "Dashboard",
+      homePage: "Home Page",
+      aboutPage: "About Page",
+      heroSlides: "Hero Slides",
+      projectsSlider: "Projects Slider",
+      properties: "Properties",
+      gallery: "Gallery",
+      blog: "Blog",
+      seoSettings: "SEO Settings",
+      crmLeads: "CRM / Leads",
     },
   },
   de: {
@@ -224,6 +239,8 @@ export const translations = {
       comingSoon: "Demnächst",
       comingSoonDesc: "Diese Seite wird derzeit erstellt. Bitte schauen Sie bald wieder vorbei.",
       weAreWorking: "Wir arbeiten an diesem Inhalt. In der Zwischenzeit können Sie unsere anderen Seiten besuchen oder uns kontaktieren.",
+      adminCms: "Admin CMS",
+      viewAll: "Alle anzeigen",
     },
     footer: {
       getSocial: "Folgen Sie uns",
@@ -231,6 +248,19 @@ export const translations = {
     language: {
       en: "English",
       de: "Deutsch",
+      signOut: "Abmelden",
+    },
+    admin: {
+      dashboard: "Dashboard",
+      homePage: "Startseite",
+      aboutPage: "Über uns-Seite",
+      heroSlides: "Hero-Slides",
+      projectsSlider: "Projekte-Slider",
+      properties: "Objekte",
+      gallery: "Galerie",
+      blog: "Blog",
+      seoSettings: "SEO-Einstellungen",
+      crmLeads: "CRM / Leads",
     },
   },
 } as const
@@ -259,4 +289,26 @@ export function getT(locale: Locale) {
 export function getTranslations(locale: Locale) {
   const t = getT(locale)
   return { t }
+}
+
+/** Map CMS nav/label text to translation key (e.g. "Projects" -> "nav.projects") */
+const labelToKey: Record<string, string> = {
+  Projects: "nav.projects",
+  About: "nav.about",
+  Gallery: "nav.gallery",
+  Blog: "nav.blog",
+  Contact: "nav.contact",
+  Career: "nav.career",
+  Home: "nav.home",
+}
+
+export function translateLabel(locale: Locale, label: string): string {
+  const key = labelToKey[label?.trim() ?? ""]
+  if (key) {
+    const out = getNested(translations[locale] as Record<string, unknown>, key)
+    if (typeof out === "string") return out
+    const enOut = getNested(translations.en as Record<string, unknown>, key)
+    if (typeof enOut === "string") return enOut
+  }
+  return label?.trim() ?? ""
 }

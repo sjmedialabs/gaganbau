@@ -63,6 +63,37 @@ export interface PressSection {
   items: PressItem[]
 }
 
+/** Blog post (managed in admin, shown on /blog and homepage blog section). */
+export interface BlogPost {
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  author: string
+  date: string
+  readTime: string
+  image: string
+  featured: boolean
+  order: number
+  isActive: boolean
+}
+
+/** Homepage blog section config (items come from blog store). */
+export interface BlogSectionConfig {
+  label: string
+  title: string
+  viewAllLink: string
+}
+
+/** Blog page hero (tagline, title, description, background image). */
+export interface BlogPageHero {
+  tagline: string
+  title: string
+  description: string
+  backgroundImage: string
+}
+
 export interface FooterLink {
   label: string
   href: string
@@ -134,7 +165,8 @@ export interface HomePageContent {
   concept: ConceptSection
   projects: ProjectSlide[]
   whyChoose: WhyChooseSection
-  press: PressSection
+  /** Blog section on homepage (items fetched from blog store). */
+  blog: BlogSectionConfig
   footer: FooterContent
   seo: SEOData
   carouselSettings?: CarouselSettings
@@ -259,11 +291,22 @@ export interface ConstructionPhase {
 }
 
 export interface PropertySpecification {
-  rooms: string // e.g., "1.5 - 4 Zimmer"
-  livingArea: string // e.g., "approx. 34 - 111 m²"
-  purchasePrice: string // e.g., "369,000 € - 1,179,000 €"
-  availability: string[] // e.g., ["1. BA: ready for occupancy, sold out", "2. BA: est. Q1 2027"]
+  rooms: string
+  livingArea: string
+  purchasePrice: string
+  availability: string[]
   address: string
+}
+
+/** Single spec item for hero bar (max 5) or key specs section (unlimited). */
+export interface PropertySpecItem {
+  id: string
+  /** Lucide icon name (fallback when iconImage is not set) */
+  icon?: string
+  /** Uploaded icon/image URL (used in admin and on website when set) */
+  iconImage?: string
+  title: string
+  description: string
 }
 
 export interface PropertyAmenity {
@@ -305,9 +348,15 @@ export interface Property {
   livingDescription: string
   livingDescriptionExtended?: string
   
-  // Specifications
+  // Specifications (legacy: address etc. for Location)
   specifications: PropertySpecification
-  
+
+  // Hero specifications (below hero bar, max 5 items: icon, title, description)
+  heroSpecifications?: PropertySpecItem[]
+
+  // Key Specifications (below amenities, unlimited: icon, title, description)
+  keySpecifications?: PropertySpecItem[]
+
   // Construction Phases
   constructionPhasesTitle: string
   constructionPhases: ConstructionPhase[]

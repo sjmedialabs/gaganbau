@@ -1,13 +1,13 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Home, ImageIcon, FileText, Users, Eye, TrendingUp } from "lucide-react"
+import { Home, ImageIcon, FileText, Users } from "lucide-react"
 import Link from "next/link"
 
 const stats = [
   { label: "Hero Slides", value: "3", icon: ImageIcon, href: "/admin/hero-slides" },
   { label: "Projects", value: "3", icon: FileText, href: "/admin/projects" },
-  { label: "Press Releases", value: "3", icon: FileText, href: "/admin/press" },
+  { label: "Blog", value: "3", icon: FileText, href: "/admin/blog" },
   { label: "Leads", value: "12", icon: Users, href: "/admin/leads" },
 ]
 
@@ -64,68 +64,6 @@ export default function AdminDashboard() {
             </Link>
           ))}
         </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-gold" />
-              Recent Changes
-            </CardTitle>
-            <CardDescription>Latest content updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { action: "Updated Hero Slide 1", time: "2 hours ago" },
-                { action: "Added new project", time: "1 day ago" },
-                { action: "Modified footer content", time: "2 days ago" },
-                { action: "Updated SEO settings", time: "3 days ago" },
-              ].map((item) => (
-                <div key={item.action} className="flex justify-between items-center py-2 border-b border-border last:border-0">
-                  <span className="text-sm">{item.action}</span>
-                  <span className="text-xs text-muted-foreground">{item.time}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-gold" />
-              Lead Statistics
-            </CardTitle>
-            <CardDescription>Contact form submissions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">New Leads</span>
-                <span className="font-semibold text-gold">5</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Contacted</span>
-                <span className="font-semibold">4</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Closed</span>
-                <span className="font-semibold">3</span>
-              </div>
-              <div className="pt-4 border-t">
-                <Link
-                  href="/admin/leads"
-                  className="text-sm text-gold hover:underline"
-                >
-                  View all leads
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

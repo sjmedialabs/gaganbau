@@ -1,15 +1,8 @@
 import type { Property } from "@/lib/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import {
-  Download,
-  Home,
-  Maximize,
-  BadgeEuro,
-  MapPin,
-  CalendarCheck,
-  Building2,
-} from "lucide-react"
+import { Download, Building2 } from "lucide-react"
+import { getSpecIcon } from "@/lib/property-icons"
 
 interface PropertyHeroProps {
   property: Property
@@ -30,7 +23,10 @@ const statusColors: Record<string, string> = {
 }
 
 export function PropertyHero({ property }: PropertyHeroProps) {
-  const specs = property.specifications
+  const heroRaw = property.heroSpecifications
+  const heroSpecs = Array.isArray(heroRaw) ? heroRaw.filter((s) => s && (s.title || s.description)) : []
+  const legacySpecs = property.specifications
+  const useHeroSpecs = heroSpecs.length > 0
 
   return (
     <>
@@ -93,74 +89,87 @@ export function PropertyHero({ property }: PropertyHeroProps) {
         </div>
       </section>
 
-      {/* Key Highlights Bar */}
-      <section className="relative z-20 -mt-16">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
-          <div className="bg-background rounded-lg shadow-xl border border-border/60">
-            <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-border">
-              {specs?.rooms && (
-                <div className="flex flex-col items-center gap-2 p-5 md:p-6">
-                  <Home className="w-5 h-5 text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Rooms
-                  </span>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">
-                    {specs.rooms}
-                  </span>
+      {/* Hero Specifications Bar */}
+      {(useHeroSpecs || (legacySpecs && (legacySpecs.rooms || legacySpecs.livingArea || legacySpecs.purchasePrice || legacySpecs.address || (legacySpecs.availability?.length ?? 0) > 0))) && (
+        <section className="relative z-20 -mt-16">
+          <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
+            <div className="bg-background rounded-lg shadow-xl border border-border/60">
+              {useHeroSpecs ? (
+                <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-border">
+                  {heroSpecs.slice(0, 5).map((item) => {
+                    const Icon = getSpecIcon(item.icon ?? "Building2")
+                    return (
+                      <div key={item.id} className="flex flex-col items-center gap-2 p-5 md:p-6">
+                        {item.iconImage ? (
+                          <span className="w-8 h-8 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={item.iconImage} alt="" className="w-8 h-8 object-contain" />
+                          </span>
+                        ) : (
+                          <Icon className="w-5 h-5 text-gold" />
+                        )}
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                          {item.title}
+                        </span>
+                        <span className="text-sm font-semibold text-navy text-center leading-tight">
+                          {item.description}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
-              )}
-
-              {specs?.livingArea && (
-                <div className="flex flex-col items-center gap-2 p-5 md:p-6">
-                  <Maximize className="w-5 h-5 text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Living Area
-                  </span>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">
-                    {specs.livingArea}
-                  </span>
-                </div>
-              )}
-
-              {specs?.purchasePrice && (
-                <div className="flex flex-col items-center gap-2 p-5 md:p-6">
-                  <BadgeEuro className="w-5 h-5 text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Price Range
-                  </span>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">
-                    {specs.purchasePrice}
-                  </span>
-                </div>
-              )}
-
-              {specs?.address && (
-                <div className="flex flex-col items-center gap-2 p-5 md:p-6">
-                  <MapPin className="w-5 h-5 text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Location
-                  </span>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">
-                    {specs.address}
-                  </span>
-                </div>
-              )}
-
-              {specs?.availability && specs.availability.length > 0 && (
-                <div className="flex flex-col items-center gap-2 p-5 md:p-6 col-span-2 md:col-span-1">
-                  <CalendarCheck className="w-5 h-5 text-gold" />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Availability
-                  </span>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">
-                    {specs.availability[0]}
-                  </span>
-                </div>
+              ) : (
+                (() => {
+                  const HomeIcon = getSpecIcon("Home")
+                  const MaximizeIcon = getSpecIcon("Maximize")
+                  const BadgeEuroIcon = getSpecIcon("BadgeEuro")
+                  const MapPinIcon = getSpecIcon("MapPin")
+                  const CalendarIcon = getSpecIcon("CalendarCheck")
+                  return (
+                    <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-border">
+                      {legacySpecs?.rooms && (
+                        <div className="flex flex-col items-center gap-2 p-5 md:p-6">
+                          <HomeIcon className="w-5 h-5 text-gold" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Rooms</span>
+                          <span className="text-sm font-semibold text-navy text-center leading-tight">{legacySpecs.rooms}</span>
+                        </div>
+                      )}
+                      {legacySpecs?.livingArea && (
+                        <div className="flex flex-col items-center gap-2 p-5 md:p-6">
+                          <MaximizeIcon className="w-5 h-5 text-gold" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Living Area</span>
+                          <span className="text-sm font-semibold text-navy text-center leading-tight">{legacySpecs.livingArea}</span>
+                        </div>
+                      )}
+                      {legacySpecs?.purchasePrice && (
+                        <div className="flex flex-col items-center gap-2 p-5 md:p-6">
+                          <BadgeEuroIcon className="w-5 h-5 text-gold" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price Range</span>
+                          <span className="text-sm font-semibold text-navy text-center leading-tight">{legacySpecs.purchasePrice}</span>
+                        </div>
+                      )}
+                      {legacySpecs?.address && (
+                        <div className="flex flex-col items-center gap-2 p-5 md:p-6">
+                          <MapPinIcon className="w-5 h-5 text-gold" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Location</span>
+                          <span className="text-sm font-semibold text-navy text-center leading-tight">{legacySpecs.address}</span>
+                        </div>
+                      )}
+                      {legacySpecs?.availability && legacySpecs.availability.length > 0 && (
+                        <div className="flex flex-col items-center gap-2 p-5 md:p-6 col-span-2 md:col-span-1">
+                          <CalendarIcon className="w-5 h-5 text-gold" />
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Availability</span>
+                          <span className="text-sm font-semibold text-navy text-center leading-tight">{legacySpecs.availability[0]}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()
               )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   )
 }

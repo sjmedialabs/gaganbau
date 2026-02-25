@@ -1,8 +1,9 @@
 import React from "react"
-import type { Metadata } from 'next'
-import { Jost, Cormorant_Garamond } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
+import type { Metadata } from "next"
+import { Jost, Cormorant_Garamond } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import { Providers } from "@/components/providers"
+import "./globals.css"
 
 // Jost for headings and body text
 const jost = Jost({ 
@@ -50,8 +51,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${jost.variable} ${cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
-        {children}
-        <Analytics />
+        <Providers>
+          {children}
+          <Analytics />
+        </Providers>
       </body>
     </html>
   )

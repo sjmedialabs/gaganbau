@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { Save, Eye, Loader2 } from "lucide-react"
+import { Save, Eye, Loader2, Plus, Trash2 } from "lucide-react"
 import { defaultHomeContent } from "@/lib/default-content"
-import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation } from "@/lib/types"
+import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation, BlogSectionConfig } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/ImageUpload"
 
@@ -20,6 +20,7 @@ export default function HomePageEditor() {
   const [concept, setConcept] = useState<ConceptSection>(defaultHomeContent.concept)
   const [whyChoose, setWhyChoose] = useState<WhyChooseSection>(defaultHomeContent.whyChoose)
   const [footer, setFooter] = useState<FooterContent>(defaultHomeContent.footer)
+  const [blog, setBlog] = useState<BlogSectionConfig>(defaultHomeContent.blog)
   const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>(
     defaultHomeContent.carouselSettings || { heroAnimation: "fade", projectsAnimation: "fade", autoPlaySpeed: 6000 }
   )
@@ -38,6 +39,7 @@ export default function HomePageEditor() {
           setConcept(data.concept)
           setWhyChoose(data.whyChoose)
           setFooter(data.footer)
+          if (data.blog) setBlog(data.blog)
           if (data.carouselSettings) {
             setCarouselSettings(data.carouselSettings)
           }
@@ -60,6 +62,7 @@ export default function HomePageEditor() {
         header,
         concept,
         whyChoose,
+        blog,
         footer,
         carouselSettings,
       }
@@ -120,6 +123,7 @@ export default function HomePageEditor() {
           <TabsTrigger value="header">Header/Logo</TabsTrigger>
           <TabsTrigger value="concept">Our Concept</TabsTrigger>
           <TabsTrigger value="whychoose">Why Choose</TabsTrigger>
+          <TabsTrigger value="blog">Blog Section</TabsTrigger>
           <TabsTrigger value="carousel">Carousel Settings</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
@@ -151,9 +155,13 @@ export default function HomePageEditor() {
 
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Navigation Items</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Order is determined by position (1 = first). Use the arrows to reorder.
+                </p>
                 <div className="space-y-4">
                   {header.navigation.map((item, index) => (
-                    <div key={`nav-${index}`} className="flex gap-4 items-center">
+                    <div key={`nav-${index}`} className="flex gap-2 md:gap-4 items-center flex-wrap">
+                      <span className="text-sm text-muted-foreground w-6 shrink-0">{index + 1}.</span>
                       <Input
                         value={item.label}
                         onChange={(e) => {
@@ -162,7 +170,7 @@ export default function HomePageEditor() {
                           setHeader({ ...header, navigation: newNav })
                         }}
                         placeholder="Label"
-                        className="flex-1"
+                        className="flex-1 min-w-[100px]"
                       />
                       <Input
                         value={item.href}
@@ -172,11 +180,70 @@ export default function HomePageEditor() {
                           setHeader({ ...header, navigation: newNav })
                         }}
                         placeholder="/path"
-                        className="flex-1"
+                        className="flex-1 min-w-[100px]"
                       />
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          disabled={index === 0}
+                          onClick={() => {
+                            const newNav = [...header.navigation]
+                            ;[newNav[index - 1], newNav[index]] = [newNav[index], newNav[index - 1]]
+                            setHeader({ ...header, navigation: newNav })
+                          }}
+                          title="Move up"
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          disabled={index === header.navigation.length - 1}
+                          onClick={() => {
+                            const newNav = [...header.navigation]
+                            ;[newNav[index], newNav[index + 1]] = [newNav[index + 1], newNav[index]]
+                            setHeader({ ...header, navigation: newNav })
+                          }}
+                          title="Move down"
+                        >
+                          ↓
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          onClick={() => {
+                            const newNav = header.navigation.filter((_, i) => i !== index)
+                            setHeader({ ...header, navigation: newNav })
+                          }}
+                          title="Remove"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() =>
+                    setHeader({
+                      ...header,
+                      navigation: [...header.navigation, { label: "New link", href: "/" }],
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add nav item
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -351,6 +418,46 @@ export default function HomePageEditor() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Blog Section */}
+        <TabsContent value="blog">
+          <Card>
+            <CardHeader>
+              <CardTitle>Blog Section (Home Page)</CardTitle>
+              <CardDescription>
+                Configure the blog section label and title shown on the home page. Blog posts are managed under Admin → Blog.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Section Label</Label>
+                  <Input
+                    value={blog.label}
+                    onChange={(e) => setBlog({ ...blog, label: e.target.value })}
+                    placeholder="Blog"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={blog.title}
+                    onChange={(e) => setBlog({ ...blog, title: e.target.value })}
+                    placeholder="Insights and stories..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>View All Link</Label>
+                  <Input
+                    value={blog.viewAllLink}
+                    onChange={(e) => setBlog({ ...blog, viewAllLink: e.target.value })}
+                    placeholder="/blog"
+                  />
                 </div>
               </div>
             </CardContent>

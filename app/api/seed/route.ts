@@ -53,7 +53,7 @@ export async function POST() {
           { label: "About", href: "/about" },
           { label: "Gallery", href: "/gallery" },
           { label: "Blog", href: "/blog" },
-          { label: "Career", href: "/career" },
+          { label: "Contact", href: "/contact" },
         ],
         languages: [
           { code: "EN", label: "English" },
@@ -185,36 +185,10 @@ export async function POST() {
           },
         ],
       },
-      press: {
-        label: "Press Release",
-        title: "Expert tips and insights for your property.",
-        viewAllLink: "/press",
-        items: [
-          {
-            id: "press-1",
-            date: "January 20, 2026",
-            title: "PRESS: 'PACIFIC SOUL' BY JAUME PLENSA AT PACIFIC GATE BY BOSA",
-            link: "/press/pacific-soul",
-            order: 1,
-            isActive: true,
-          },
-          {
-            id: "press-2",
-            date: "December 29, 2025",
-            title: "PRESS: 'PACIFIC GATE KOHN PEDERSEN FOX ASSOCIATES",
-            link: "/press/pacific-gate",
-            order: 2,
-            isActive: true,
-          },
-          {
-            id: "press-3",
-            date: "December 10, 2025",
-            title: "PRESS: PENTHOUSES RISE OVER THE PACIFIC",
-            link: "/press/penthouses-pacific",
-            order: 3,
-            isActive: true,
-          },
-        ],
+      blog: {
+        label: "Blog",
+        title: "Insights and stories from the world of premium real estate.",
+        viewAllLink: "/blog",
       },
       footer: {
         logo: uploadedUrls["images/logo.png"] || "/images/logo.png",

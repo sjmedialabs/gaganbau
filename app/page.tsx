@@ -3,34 +3,44 @@ import { HeroSlider } from "@/components/home/HeroSlider"
 import { ConceptSection } from "@/components/home/ConceptSection"
 import { ProjectsSlider } from "@/components/home/ProjectsSlider"
 import { WhyChooseSection } from "@/components/home/WhyChooseSection"
-import { PressSection } from "@/components/home/PressSection"
+import { BlogSection } from "@/components/home/BlogSection"
 import { Footer } from "@/components/home/Footer"
 import { getHomePageContent } from "@/lib/content-store"
+import { getBlogPosts } from "@/lib/blog-store"
 import { getAllProperties } from "@/lib/properties-store"
 
 export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
-  // Get content from Firestore (returns default content if not found)
   const content = await getHomePageContent()
   const properties = await getAllProperties()
+  const blogPosts = await getBlogPosts()
+  const blogItems = blogPosts
+    .filter((p) => p.isActive)
+    .sort((a, b) => a.order - b.order)
+    .slice(0, 5)
+    .map((p) => ({
+      date: p.date,
+      title: p.title,
+      link: `/blog/${p.slug}`,
+    }))
 
   return (
     <main>
       <Header content={content.header} isTransparent={true} properties={properties} />
-      <HeroSlider 
-        slides={content.heroSlides} 
+      <HeroSlider
+        slides={content.heroSlides}
         animation={content.carouselSettings?.heroAnimation}
         autoPlaySpeed={content.carouselSettings?.autoPlaySpeed}
       />
-      <ProjectsSlider 
+      <ConceptSection content={content.concept} />
+      <ProjectsSlider
         projects={content.projects}
         animation={content.carouselSettings?.projectsAnimation}
         autoPlaySpeed={content.carouselSettings?.autoPlaySpeed}
       />
-      <ConceptSection content={content.concept} />
       <WhyChooseSection content={content.whyChoose} />
-      <PressSection content={content.press} />
+      <BlogSection content={content.blog} items={blogItems} />
       <Footer content={content.footer} />
     </main>
   )

@@ -38,9 +38,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-muted">
+    <div className="min-h-screen bg-muted">
       <AdminSidebar />
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="ml-64 min-h-screen p-8 overflow-auto">
         {children}
       </main>
     </div>
