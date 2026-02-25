@@ -2,12 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import type { Property, ConstructionPhase } from "@/lib/types"
-import { ChevronLeft, ChevronRight, ImageIcon, ZoomIn, ZoomOut } from "lucide-react"
+import { ImageIcon, ZoomIn, ZoomOut, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const MIN_SCALE = 1
 const MAX_SCALE = 4
-const ZOOM_STEP = 0.5
+const ZOOM_STEP = 0.25
 
 function getPlanImages(phase: ConstructionPhase): string[] {
   if (phase.images && phase.images.length > 0) return phase.images.filter(Boolean)
@@ -21,7 +21,8 @@ interface PropertyPhasesProps {
 
 export function PropertyPhases({ property }: PropertyPhasesProps) {
   const [activePlanIndex, setActivePlanIndex] = useState(0)
-  const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalImageIndex, setModalImageIndex] = useState(0)
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -34,31 +35,25 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
 
   const activePlan = plans[activePlanIndex]
   const images = getPlanImages(activePlan)
-  const currentImage = images[activeImageIndex]
-
-  const hasMultipleImages = images.length > 1
-  const isZoomed = scale > 1
-  const showPrevNext = hasMultipleImages && !isZoomed
-
-  const goToPrevImage = () => {
-    setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length)
-    resetZoom()
-  }
-  const goToNextImage = () => {
-    setActiveImageIndex((prev) => (prev + 1) % images.length)
-    resetZoom()
-  }
-
-  const resetZoom = useCallback(() => {
-    setScale(MIN_SCALE)
-    setPosition({ x: 0, y: 0 })
-  }, [])
+  const modalImage = images[modalImageIndex]
 
   const handlePlanTabClick = (index: number) => {
     setActivePlanIndex(index)
-    setActiveImageIndex(0)
-    resetZoom()
+    setModalOpen(false)
   }
+
+  const openModal = (imageIndex: number) => {
+    setModalImageIndex(imageIndex)
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+    setModalOpen(true)
+  }
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false)
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }, [])
 
   const zoomIn = () => {
     setScale((s) => Math.min(MAX_SCALE, s + ZOOM_STEP))
@@ -72,7 +67,12 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
     })
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const resetZoom = () => {
+    setScale(MIN_SCALE)
+    setPosition({ x: 0, y: 0 })
+  }
+
+  const handleModalMouseDown = (e: React.MouseEvent) => {
     if (scale <= 1) return
     e.preventDefault()
     setIsDragging(true)
@@ -98,13 +98,27 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
     }
   }, [isDragging])
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal()
+    }
+    if (modalOpen) {
+      document.addEventListener("keydown", handleEscape)
+      document.body.style.overflow = "hidden"
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape)
+      document.body.style.overflow = ""
+    }
+  }, [modalOpen, closeModal])
+
+  const handleModalTouchStart = (e: React.TouchEvent) => {
     if (scale <= 1) return
     const t = e.touches[0]
     dragStart.current = { x: t.clientX, y: t.clientY, posX: positionRef.current.x, posY: positionRef.current.y }
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleModalTouchMove = (e: React.TouchEvent) => {
     if (scale <= 1 || e.touches.length !== 1) return
     e.preventDefault()
     const t = e.touches[0]
@@ -148,112 +162,34 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
             </div>
           )}
 
-          {/* Right: Image viewer with zoom and pan */}
+          {/* Right: Thumbnails grid */}
           <div className="flex-1 min-w-0">
-            <div className="relative">
-              {currentImage ? (
-                <div
-                  className={`rounded-md overflow-hidden bg-white/5 relative group transition-all duration-300 ${
-                    isZoomed ? "min-h-[60vh] touch-none" : "aspect-[16/9]"
-                  } ${isZoomed ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
-                  onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  style={{ touchAction: isZoomed ? "none" : "auto" }}
-                >
-                  <div
-                    className={`flex items-center justify-center w-full h-full ${isZoomed ? "min-h-[60vh]" : "aspect-[16/9]"} overflow-hidden`}
-                    style={{ pointerEvents: isZoomed ? "auto" : "none" }}
+            {images.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {images.map((src, index) => (
+                  <button
+                    type="button"
+                    key={index}
+                    onClick={() => openModal(index)}
+                    className="aspect-video rounded-md overflow-hidden bg-white/5 border border-white/10 hover:border-gold/50 transition-all focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-navy"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={currentImage}
-                      alt={activePlan.title}
-                      draggable={false}
-                      className={`select-none transition-transform duration-100 ${
-                        isZoomed ? "max-w-none max-h-none" : "w-full h-full object-cover"
-                      }`}
-                      style={{
-                        transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                        transformOrigin: "center center",
-                        pointerEvents: "none",
-                      }}
+                      src={src}
+                      alt={`${activePlan.title} ${index + 1}`}
+                      className="w-full h-full object-cover"
                     />
-                  </div>
-
-                  {/* Zoom controls - always visible when image exists */}
-                  <div
-                    className="absolute bottom-3 right-3 flex items-center gap-2"
-                    onMouseDown={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      className="bg-black/60 hover:bg-black/80 text-white rounded-full w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={zoomIn}
-                      disabled={scale >= MAX_SCALE}
-                      aria-label="Zoom in"
-                    >
-                      <ZoomIn className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      className="bg-black/60 hover:bg-black/80 text-white rounded-full w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={zoomOut}
-                      disabled={scale <= MIN_SCALE}
-                      aria-label="Zoom out"
-                    >
-                      <ZoomOut className="w-5 h-5" />
-                    </Button>
-                    {isZoomed && (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="bg-black/60 hover:bg-black/80 text-white rounded-full px-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={resetZoom}
-                      >
-                        Reset
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="aspect-[16/9] rounded-md bg-white/5 flex flex-col items-center justify-center gap-3">
-                  <ImageIcon className="w-12 h-12 text-white/20" />
-                  <span className="text-white/30 text-sm">
-                    No image uploaded for this plan
-                  </span>
-                </div>
-              )}
-
-              {/* Prev/Next: cycle through images of the current plan */}
-              {showPrevNext && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 z-10"
-                    onClick={goToPrevImage}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                    <span className="sr-only">Previous image</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 z-10"
-                    onClick={goToNextImage}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                    <span className="sr-only">Next image</span>
-                  </Button>
-                </>
-              )}
-            </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="aspect-video rounded-md bg-white/5 flex flex-col items-center justify-center gap-3">
+                <ImageIcon className="w-12 h-12 text-white/20" />
+                <span className="text-white/30 text-sm">
+                  No image uploaded for this plan
+                </span>
+              </div>
+            )}
 
             <div className="mt-6 text-center">
               <h3 className="text-lg font-medium text-white">
@@ -264,20 +200,98 @@ export function PropertyPhases({ property }: PropertyPhasesProps) {
                   {activePlan.description}
                 </p>
               )}
-              {hasMultipleImages && !isZoomed && (
+              {images.length > 0 && (
                 <p className="text-white/30 text-xs mt-4">
-                  Image {activeImageIndex + 1} / {images.length}
-                </p>
-              )}
-              {isZoomed && (
-                <p className="text-white/50 text-xs mt-4">
-                  Drag to pan · Zoom out or Reset to return
+                  Click a thumbnail to view full size
                 </p>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Gallery modal with step zoom */}
+      {modalOpen && modalImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image gallery"
+        >
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10"
+              onClick={zoomIn}
+              disabled={scale >= MAX_SCALE}
+              aria-label="Zoom in"
+            >
+              <ZoomIn className="w-5 h-5" />
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10"
+              onClick={zoomOut}
+              disabled={scale <= MIN_SCALE}
+              aria-label="Zoom out"
+            >
+              <ZoomOut className="w-5 h-5" />
+            </Button>
+            {scale > 1 && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="bg-white/10 hover:bg-white/20 text-white rounded-full px-3 text-xs"
+                onClick={resetZoom}
+              >
+                Reset
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10"
+              onClick={closeModal}
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div
+            className="flex-1 flex items-center justify-center overflow-hidden min-h-0 p-4 pt-16"
+            onMouseDown={handleModalMouseDown}
+            onTouchStart={handleModalTouchStart}
+            onTouchMove={handleModalTouchMove}
+            style={{
+              cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+              touchAction: scale > 1 ? "none" : "auto",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={modalImage}
+              alt={activePlan.title}
+              draggable={false}
+              className="select-none max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+              style={{
+                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                transformOrigin: "center center",
+              }}
+            />
+          </div>
+
+          <p className="text-center text-white/50 text-sm pb-4">
+            {scale > 1 ? "Drag to pan · Zoom step by step with buttons" : "Use zoom buttons for step-by-step zoom"}
+          </p>
+        </div>
+      )}
     </section>
   )
 }

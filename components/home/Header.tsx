@@ -148,7 +148,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-2">
         <div className="flex items-center justify-between h-18">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
@@ -156,7 +156,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
             <img
               src={content.logo || "/placeholder.svg"}
               alt="Gagan Bau GmbH"
-              className={`h-20 w-auto object-contain transition-all duration-500 ${
+              className={`h-18 w-auto object-contain transition-all duration-500 ${
                 isWhiteBackground ? "brightness-0 contrast-100" : "brightness-100"
               }`}
             />
