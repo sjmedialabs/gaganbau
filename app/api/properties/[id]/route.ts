@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getPropertyById, updateProperty, deleteProperty } from "@/lib/properties-store"
 import type { Property } from "@/lib/types"
 
@@ -32,6 +33,8 @@ export async function PUT(
     const success = await updateProperty(id, updates)
     
     if (success) {
+      revalidatePath('/projects')
+      revalidatePath('/')
       return NextResponse.json({ success: true })
     }
     
@@ -51,6 +54,8 @@ export async function DELETE(
     const success = await deleteProperty(id)
     
     if (success) {
+      revalidatePath('/projects')
+      revalidatePath('/')
       return NextResponse.json({ success: true })
     }
     

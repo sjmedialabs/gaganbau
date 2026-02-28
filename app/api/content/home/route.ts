@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getHomePageContent, saveHomePageContent, hasHomePageContent } from "@/lib/content-store"
 import { defaultHomeContent } from "@/lib/default-content"
 
@@ -20,6 +21,7 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     }
     await saveHomePageContent(updatedContent as Parameters<typeof saveHomePageContent>[0])
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true, content: updatedContent })
   } catch (error) {
     console.error("Error updating home content:", error)

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import {
   getAllProperties,
   getPropertiesByCategory,
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
     const success = await createProperty(property)
     
     if (success) {
+      revalidatePath('/projects')
+      revalidatePath('/')
       return NextResponse.json({ success: true, property })
     }
     
@@ -64,6 +67,8 @@ export async function PUT(request: NextRequest) {
     const success = await savePropertiesContent(content)
     
     if (success) {
+      revalidatePath('/projects')
+      revalidatePath('/')
       return NextResponse.json({ success: true })
     }
     

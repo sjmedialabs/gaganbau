@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import {
   getAllGalleryAlbums,
   createGalleryAlbum,
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
     const success = await createGalleryAlbum(album)
     
     if (success) {
+      revalidatePath('/gallery')
       return NextResponse.json({ success: true, album })
     }
     
@@ -53,6 +55,7 @@ export async function PUT(request: NextRequest) {
     const success = await savePropertiesContent(content)
     
     if (success) {
+      revalidatePath('/gallery')
       return NextResponse.json({ success: true })
     }
     

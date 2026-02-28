@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getAboutContent, saveAboutContent } from "@/lib/about-store"
 import { defaultAboutContent } from "@/lib/default-about-content"
 import type { AboutPageContent } from "@/lib/types"
@@ -22,6 +23,7 @@ export async function PUT(request: NextRequest) {
     }
     const ok = await saveAboutContent(updatedContent)
     if (!ok) return NextResponse.json({ error: "Failed to save" }, { status: 500 })
+    revalidatePath('/about')
     return NextResponse.json({ success: true, content: updatedContent })
   } catch (error) {
     console.error("Error updating about content:", error)

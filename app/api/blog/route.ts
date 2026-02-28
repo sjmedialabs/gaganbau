@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getBlogDoc, saveBlogDoc } from "@/lib/blog-store"
 import type { BlogPost, BlogPageHero } from "@/lib/types"
 
@@ -26,6 +27,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Invalid payload: provide posts and/or hero" }, { status: 400 })
     }
     await saveBlogDoc(updates)
+    revalidatePath('/blog')
+    revalidatePath('/')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error saving blog:", error)
