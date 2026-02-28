@@ -6,6 +6,7 @@ import { getAllGalleryAlbums } from "@/lib/properties-store"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 export const metadata = {
   title: "Gallery | Property Photo Albums",

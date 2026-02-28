@@ -4,6 +4,7 @@ import { Footer } from "@/components/home/Footer"
 import { getHomePageContent } from "@/lib/content-store"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 interface PageProps {
   params: Promise<{ slug: string[] }>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 export const metadata: Metadata = {
   title: "About | Gagan Bau GmbH",

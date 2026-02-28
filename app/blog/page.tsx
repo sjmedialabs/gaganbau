@@ -7,6 +7,7 @@ import { getAllProperties } from "@/lib/properties-store"
 import { BlogFilterAndGrid } from "@/components/blog/BlogFilterAndGrid"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 export const metadata: Metadata = {
   title: "Blog | Gagan Bau GmbH",

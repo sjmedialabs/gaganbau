@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail } from "lucide-react"
 import Link from "next/link"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 export const metadata: Metadata = {
   title: "Contact Us | Gagan Bau GmbH",

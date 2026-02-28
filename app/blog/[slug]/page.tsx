@@ -9,6 +9,7 @@ import { getAllProperties } from "@/lib/properties-store"
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 type Props = { params: Promise<{ slug: string }> }
 

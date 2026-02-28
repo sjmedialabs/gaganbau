@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Building2 } from "lucide-react"
 
 export const revalidate = 60
+export const runtime = "nodejs"
 
 interface Props {
   params: Promise<{ category: string }>

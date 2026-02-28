@@ -1,10 +1,12 @@
 import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
+import { withTimeout, FIREBASE_READ_TIMEOUT_MS } from "./timeout"
 import type { BlogPost, BlogPageHero } from "./types"
 import { defaultBlogPosts } from "./default-blog-posts"
 import { defaultBlogHero } from "./default-blog-hero"
 
 const BLOG_DOC = "blog"
 const CONTENT_COLLECTION = "content"
+const defaultBlogDoc = { posts: [...defaultBlogPosts], hero: defaultBlogHero }
 
 export { defaultBlogHero }
 
@@ -14,23 +16,30 @@ export type BlogDoc = {
   updatedAt?: string
 }
 
+async function fetchBlogDocFromFirebase(): Promise<BlogDoc> {
+  if (!isFirebaseConfigured()) return defaultBlogDoc
+  const db = getAdminFirestore()
+  const snap = await db.collection(CONTENT_COLLECTION).doc(BLOG_DOC).get()
+  if (!snap.exists) return defaultBlogDoc
+  const data = snap.data() as BlogDoc | undefined
+  const posts = Array.isArray(data?.posts) ? data.posts : [...defaultBlogPosts]
+  const hero: BlogPageHero = data?.hero && typeof data.hero.tagline === "string"
+    ? data.hero as BlogPageHero
+    : defaultBlogHero
+  return { posts, hero }
+}
+
 export async function getBlogDoc(): Promise<BlogDoc> {
   try {
-    if (!isFirebaseConfigured()) return { posts: [...defaultBlogPosts], hero: defaultBlogHero }
-    const db = getAdminFirestore()
-    const snap = await db.collection(CONTENT_COLLECTION).doc(BLOG_DOC).get()
-    if (!snap.exists) {
-      return { posts: [...defaultBlogPosts], hero: defaultBlogHero }
-    }
-    const data = snap.data() as BlogDoc | undefined
-    const posts = Array.isArray(data?.posts) ? data.posts : [...defaultBlogPosts]
-    const hero: BlogPageHero = data?.hero && typeof data.hero.tagline === "string"
-      ? data.hero as BlogPageHero
-      : defaultBlogHero
-    return { posts, hero }
+    return await withTimeout(
+      fetchBlogDocFromFirebase(),
+      FIREBASE_READ_TIMEOUT_MS,
+      defaultBlogDoc,
+      "getBlogDoc"
+    )
   } catch (error) {
     console.error("Error fetching blog doc:", error)
-    return { posts: [...defaultBlogPosts], hero: defaultBlogHero }
+    return defaultBlogDoc
   }
 }
 

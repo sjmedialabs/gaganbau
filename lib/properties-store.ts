@@ -1,4 +1,5 @@
 import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
+import { withTimeout, FIREBASE_READ_TIMEOUT_MS } from "./timeout"
 import type { PropertiesContent, Property, GalleryAlbum } from "./types"
 
 const PROPERTIES_DOC = "properties"
@@ -47,17 +48,22 @@ function serializeForFirestore(content: PropertiesContent): Record<string, unkno
   }
 }
 
+async function fetchPropertiesContentFromFirebase(): Promise<PropertiesContent> {
+  if (!isFirebaseConfigured()) return defaultPropertiesContent
+  const db = getAdminFirestore()
+  const doc = await db.collection("content").doc(PROPERTIES_DOC).get()
+  if (!doc.exists) return defaultPropertiesContent
+  return parsePropertiesContent(doc.data() as Record<string, unknown>)
+}
+
 export async function getPropertiesContent(): Promise<PropertiesContent> {
   try {
-    if (!isFirebaseConfigured()) return defaultPropertiesContent
-    const db = getAdminFirestore()
-    const doc = await db.collection("content").doc(PROPERTIES_DOC).get()
-
-    if (!doc.exists) {
-      return defaultPropertiesContent
-    }
-
-    return parsePropertiesContent(doc.data() as Record<string, unknown>)
+    return await withTimeout(
+      fetchPropertiesContentFromFirebase(),
+      FIREBASE_READ_TIMEOUT_MS,
+      defaultPropertiesContent,
+      "getPropertiesContent"
+    )
   } catch (error) {
     console.error("Error fetching properties content:", error)
     return defaultPropertiesContent

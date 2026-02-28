@@ -1,4 +1,5 @@
 import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
+import { withTimeout, FIREBASE_READ_TIMEOUT_MS } from "./timeout"
 import type { HomePageContent } from "./types"
 import { defaultHomeContent } from "./default-content"
 
@@ -64,29 +65,34 @@ export async function hasHomePageContent(): Promise<boolean> {
   }
 }
 
+async function fetchHomeContentFromFirebase(): Promise<HomePageContent> {
+  if (!isFirebaseConfigured()) return normalizeHomeContent(defaultHomeContent)
+  const db = getAdminFirestore()
+  const doc = await db.collection("content").doc(CONTENT_DOC).get()
+  if (!doc.exists) return normalizeHomeContent(defaultHomeContent)
+  const data = doc.data()
+  if (!data) return normalizeHomeContent(defaultHomeContent)
+  const raw = data as Record<string, unknown>
+  const content = {
+    ...raw,
+    blog: ensureBlogSection(raw),
+    updatedAt: raw.updatedAt ? new Date(raw.updatedAt as string) : new Date(),
+  } as HomePageContent
+  return normalizeHomeContent(content)
+}
+
 export async function getHomePageContent(): Promise<HomePageContent> {
+  const defaultResult = normalizeHomeContent(defaultHomeContent)
   try {
-    if (!isFirebaseConfigured()) return normalizeHomeContent(defaultHomeContent)
-    const db = getAdminFirestore()
-    const doc = await db.collection("content").doc(CONTENT_DOC).get()
-
-    if (!doc.exists) {
-      return normalizeHomeContent(defaultHomeContent)
-    }
-
-    const data = doc.data()
-    if (!data) return normalizeHomeContent(defaultHomeContent)
-
-    const raw = data as Record<string, unknown>
-    const content = {
-      ...raw,
-      blog: ensureBlogSection(raw),
-      updatedAt: raw.updatedAt ? new Date(raw.updatedAt as string) : new Date(),
-    } as HomePageContent
-    return normalizeHomeContent(content)
+    return await withTimeout(
+      fetchHomeContentFromFirebase(),
+      FIREBASE_READ_TIMEOUT_MS,
+      defaultResult,
+      "getHomePageContent"
+    )
   } catch (error) {
     console.error("Error fetching home content:", error)
-    return normalizeHomeContent(defaultHomeContent)
+    return defaultResult
   }
 }
 
