@@ -315,37 +315,10 @@ export default function HomePageEditor() {
                         >
                           ↓
                         </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => {
-                            const newNav = header.navigation.filter((_, i) => i !== index)
-                            setHeader({ ...header, navigation: newNav })
-                          }}
-                          title="Remove"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() =>
-                    setHeader({
-                      ...header,
-                      navigation: [...header.navigation, { label: "New link", href: "/", enabled: true }],
-                    })
-                  }
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add nav item
-                </Button>
               </div>
             </CardContent>
           </Card>
