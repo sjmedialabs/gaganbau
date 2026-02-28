@@ -14,7 +14,7 @@ import { PropertyLocation } from "@/components/property/PropertyLocation"
 import { PropertyGallery } from "@/components/property/PropertyGallery"
 import { PropertyConsultation } from "@/components/property/PropertyConsultation"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 interface Props {
   params: Promise<{ slug: string }>

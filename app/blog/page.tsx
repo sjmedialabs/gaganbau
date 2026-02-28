@@ -6,7 +6,7 @@ import { getBlogPosts } from "@/lib/blog-store"
 import { getAllProperties } from "@/lib/properties-store"
 import { BlogFilterAndGrid } from "@/components/blog/BlogFilterAndGrid"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "Blog | Gagan Bau GmbH",
@@ -14,9 +14,11 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogPage() {
-  const content = await getHomePageContent()
-  const properties = await getAllProperties()
-  const blogPosts = await getBlogPosts()
+  const [content, properties, blogPosts] = await Promise.all([
+    getHomePageContent(),
+    getAllProperties(),
+    getBlogPosts(),
+  ])
   const activePosts = blogPosts.filter((p) => p.isActive).sort((a, b) => a.order - b.order)
 
   const featured = activePosts.find((p) => p.featured)

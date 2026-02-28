@@ -17,7 +17,7 @@ import {
   Leaf,
 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "Career | Gagan Bau GmbH",
@@ -108,8 +108,10 @@ const benefits = [
 ]
 
 export default async function CareerPage() {
-  const content = await getHomePageContent()
-  const properties = await getAllProperties()
+  const [content, properties] = await Promise.all([
+    getHomePageContent(),
+    getAllProperties(),
+  ])
 
   return (
     <main className="min-h-screen bg-background">

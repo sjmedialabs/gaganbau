@@ -5,7 +5,7 @@ import { getAllProperties } from "@/lib/properties-store"
 import { getAllGalleryAlbums } from "@/lib/properties-store"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export const metadata = {
   title: "Gallery | Property Photo Albums",
@@ -13,9 +13,11 @@ export const metadata = {
 }
 
 export default async function GalleryPage() {
-  const content = await getHomePageContent()
-  const properties = await getAllProperties()
-  const albums = await getAllGalleryAlbums()
+  const [content, properties, albums] = await Promise.all([
+    getHomePageContent(),
+    getAllProperties(),
+    getAllGalleryAlbums(),
+  ])
 
   // Filter only active albums with images
   const activeAlbums = albums.filter((album) => album.isActive && album.images.length > 0)

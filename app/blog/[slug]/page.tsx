@@ -8,7 +8,7 @@ import { getBlogPostBySlug, getBlogPosts } from "@/lib/blog-store"
 import { getAllProperties } from "@/lib/properties-store"
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -29,9 +29,11 @@ export async function generateStaticParams() {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
-  const content = await getHomePageContent()
-  const properties = await getAllProperties()
-  const post = await getBlogPostBySlug(slug)
+  const [content, properties, post] = await Promise.all([
+    getHomePageContent(),
+    getAllProperties(),
+    getBlogPostBySlug(slug),
+  ])
 
   if (!post || !post.isActive) {
     notFound()

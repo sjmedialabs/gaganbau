@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Jost, Cormorant_Garamond } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "@/components/providers"
-import { getHomePageContent } from "@/lib/content-store"
 import "./globals.css"
 
 /** Use Node.js runtime so Firebase Admin and data fetching work (Edge would 500). */
@@ -38,20 +37,7 @@ const defaultMetadata: Metadata = {
   },
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const content = await getHomePageContent()
-    const seo = content?.seo
-    const favicon = (seo?.favicon ?? '').trim()
-    if (!favicon) return defaultMetadata
-    return {
-      ...defaultMetadata,
-      icons: { icon: favicon, apple: favicon },
-    }
-  } catch {
-    return defaultMetadata
-  }
-}
+export const metadata: Metadata = defaultMetadata
 
 export default function RootLayout({
   children,

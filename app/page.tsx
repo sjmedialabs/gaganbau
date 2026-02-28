@@ -9,14 +9,17 @@ import { getHomePageContent } from "@/lib/content-store"
 import { getBlogPosts } from "@/lib/blog-store"
 import { getAllProperties } from "@/lib/properties-store"
 
-export const dynamic = "force-dynamic"
+/** Revalidate every 60s so pages stay fast without hitting Firebase on every request. */
+export const revalidate = 60
 /** Use Node.js runtime so Firebase/data fetching work (Edge would 500). */
 export const runtime = "nodejs"
 
 export default async function HomePage() {
-  const content = await getHomePageContent()
-  const properties = await getAllProperties()
-  const blogPosts = await getBlogPosts()
+  const [content, properties, blogPosts] = await Promise.all([
+    getHomePageContent(),
+    getAllProperties(),
+    getBlogPosts(),
+  ])
   const blogItems = blogPosts
     .filter((p) => p.isActive)
     .sort((a, b) => a.order - b.order)

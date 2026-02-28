@@ -3,7 +3,7 @@ import { Header } from "@/components/home/Header"
 import { Footer } from "@/components/home/Footer"
 import { getHomePageContent } from "@/lib/content-store"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 interface PageProps {
   params: Promise<{ slug: string[] }>

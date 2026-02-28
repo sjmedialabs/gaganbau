@@ -7,7 +7,7 @@ import { getAllProperties } from "@/lib/properties-store"
 import { MapPin, Phone, Mail } from "lucide-react"
 import Link from "next/link"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "Contact Us | Gagan Bau GmbH",
