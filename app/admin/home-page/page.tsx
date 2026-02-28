@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { Save, Eye, Loader2, Plus, Trash2, GripVertical } from "lucide-react"
 import { defaultHomeContent } from "@/lib/default-content"
-import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation, BlogSectionConfig, HeroSlide, ProjectSlide } from "@/lib/types"
+import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation, BlogSectionConfig, HeroSlide, ProjectSlide, SocialItem } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/ImageUpload"
 
@@ -58,6 +58,18 @@ export default function HomePageEditor() {
           }
           if (data.heroSlides?.length) setHeroSlides(data.heroSlides)
           if (data.projects?.length) setProjects(data.projects)
+          if (data.footer) {
+            const f = data.footer as FooterContent
+            const socialItems = f.socialItems?.length
+              ? f.socialItems
+              : [
+                  { label: "Facebook", url: f.socialLinks?.facebook ?? "", icon: f.socialIcons?.facebook ?? "" },
+                  { label: "Twitter", url: f.socialLinks?.twitter ?? "", icon: f.socialIcons?.twitter ?? "" },
+                  { label: "Instagram", url: f.socialLinks?.instagram ?? "", icon: f.socialIcons?.instagram ?? "" },
+                  { label: "YouTube", url: f.socialLinks?.youtube ?? "", icon: f.socialIcons?.youtube ?? "" },
+                ]
+            setFooter({ ...f, socialItems })
+          }
         }
       } catch (error) {
         console.error("Failed to fetch content:", error)
@@ -678,29 +690,14 @@ export default function HomePageEditor() {
                       </div>
                     </div>
                     <div className="border-t pt-6">
-                      <h3 className="font-semibold mb-4">Project Images (at least 1)</h3>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {project.images.map((_, imageIndex) => (
-                          <div key={imageIndex} className="relative">
-                            <ImageUpload
-                              label={`Image ${imageIndex + 1}`}
-                              value={project.images[imageIndex] || ""}
-                              onChange={(url) => updateProjectImage(project.id, imageIndex, url)}
-                              folder="projects"
-                              aspectRatio="video"
-                            />
-                            {project.images.length > 1 && (
-                              <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-8 w-8 text-destructive hover:text-destructive" onClick={() => removeProjectImage(project.id, imageIndex)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => addProjectImage(project.id)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add image
-                      </Button>
+                      <h3 className="font-semibold mb-4">Project Image</h3>
+                      <ImageUpload
+                        label="Image"
+                        value={project.images[0] ?? ""}
+                        onChange={(url) => updateProject(project.id, { images: [url] })}
+                        folder="projects"
+                        aspectRatio="video"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -919,70 +916,83 @@ export default function HomePageEditor() {
 
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Social Links</h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Facebook URL</Label>
-                    <Input
-                      value={footer.socialLinks.facebook}
-                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, facebook: e.target.value } })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Twitter URL</Label>
-                    <Input
-                      value={footer.socialLinks.twitter}
-                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, twitter: e.target.value } })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Instagram URL</Label>
-                    <Input
-                      value={footer.socialLinks.instagram}
-                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, instagram: e.target.value } })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>YouTube URL</Label>
-                    <Input
-                      value={footer.socialLinks.youtube}
-                      onChange={(e) => setFooter({ ...footer, socialLinks: { ...footer.socialLinks, youtube: e.target.value } })}
-                    />
-                  </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add items with a label, URL, and optional icon. If no icon is uploaded, the label is shown as text (no broken image).
+                </p>
+                <div className="space-y-6">
+                  {(footer.socialItems ?? []).map((item, index) => (
+                    <div key={index} className="flex flex-col gap-4 p-4 rounded-lg border">
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label>Label</Label>
+                          <Input
+                            value={item.label}
+                            onChange={(e) => {
+                              const next = [...(footer.socialItems ?? [])]
+                              next[index] = { ...item, label: e.target.value }
+                              setFooter({ ...footer, socialItems: next })
+                            }}
+                            placeholder="Enter label"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>URL</Label>
+                          <Input
+                            value={item.url}
+                            onChange={(e) => {
+                              const next = [...(footer.socialItems ?? [])]
+                              next[index] = { ...item, url: e.target.value }
+                              setFooter({ ...footer, socialItems: next })
+                            }}
+                            placeholder="Enter URL"
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          <div className="flex-1">
+                            <ImageUpload
+                              label="Icon (optional)"
+                              value={item.icon}
+                              onChange={(url) => {
+                                const next = [...(footer.socialItems ?? [])]
+                                next[index] = { ...item, icon: url }
+                                setFooter({ ...footer, socialItems: next })
+                              }}
+                              folder="icons"
+                              aspectRatio="square"
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive shrink-0"
+                            onClick={() => {
+                              const next = (footer.socialItems ?? []).filter((_, i) => i !== index)
+                              setFooter({ ...footer, socialItems: next })
+                            }}
+                            title="Remove"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="font-semibold mb-4">Social Icons (Upload custom icons)</h3>
-                <div className="grid gap-4 md:grid-cols-4">
-                  <ImageUpload
-                    label="Facebook Icon"
-                    value={footer.socialIcons?.facebook || ""}
-                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, facebook: url } })}
-                    folder="icons"
-                    aspectRatio="square"
-                  />
-                  <ImageUpload
-                    label="Twitter Icon"
-                    value={footer.socialIcons?.twitter || ""}
-                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, twitter: url } })}
-                    folder="icons"
-                    aspectRatio="square"
-                  />
-                  <ImageUpload
-                    label="Instagram Icon"
-                    value={footer.socialIcons?.instagram || ""}
-                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, instagram: url } })}
-                    folder="icons"
-                    aspectRatio="square"
-                  />
-                  <ImageUpload
-                    label="YouTube Icon"
-                    value={footer.socialIcons?.youtube || ""}
-                    onChange={(url) => setFooter({ ...footer, socialIcons: { ...footer.socialIcons, youtube: url } })}
-                    folder="icons"
-                    aspectRatio="square"
-                  />
-                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() =>
+                    setFooter({
+                      ...footer,
+                      socialItems: [...(footer.socialItems ?? []), { label: "", url: "", icon: "" }],
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add social link
+                </Button>
               </div>
 
               <div className="border-t pt-6">

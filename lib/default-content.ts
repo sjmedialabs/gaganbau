@@ -168,6 +168,12 @@ export const defaultHomeContent: HomePageContent = {
         ],
       },
     ],
+    socialItems: [
+      { label: "Facebook", url: "https://facebook.com", icon: "" },
+      { label: "Twitter", url: "https://twitter.com", icon: "" },
+      { label: "Instagram", url: "https://instagram.com", icon: "" },
+      { label: "YouTube", url: "https://youtube.com", icon: "" },
+    ],
     socialLinks: {
       facebook: "https://facebook.com",
       twitter: "https://twitter.com",

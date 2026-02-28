@@ -116,63 +116,63 @@ export function Footer({ content }: FooterProps) {
             style={{ animationDelay: `${100 + content.columns.length * 100}ms` }}
           >
             <h3 className="text-white text-sm font-medium mb-4">Get Social</h3>
-            <div className="flex items-center gap-3">
-              <Link 
-                href={content.socialLinks.facebook} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="Facebook"
-                className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={content.socialIcons?.facebook || "/icons/facebook.png"} 
-                  alt="Facebook" 
-                  className="w-6 h-6" 
-                />
-              </Link>
-              <Link 
-                href={content.socialLinks.twitter} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="Twitter"
-                className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={content.socialIcons?.twitter || "/icons/twitter.png"} 
-                  alt="Twitter" 
-                  className="w-6 h-6" 
-                />
-              </Link>
-              <Link 
-                href={content.socialLinks.instagram} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="Instagram"
-                className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={content.socialIcons?.instagram || "/icons/instagram.png"} 
-                  alt="Instagram" 
-                  className="w-6 h-6" 
-                />
-              </Link>
-              <Link 
-                href={content.socialLinks.youtube} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="YouTube"
-                className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={content.socialIcons?.youtube || "/icons/youtube.png"} 
-                  alt="YouTube" 
-                  className="w-6 h-6" 
-                />
-              </Link>
+            <div className="flex items-center gap-3 flex-wrap">
+              {content.socialItems && content.socialItems.length > 0
+                ? content.socialItems
+                    .filter((item) => item.url?.trim())
+                    .map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={item.label}
+                        className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
+                      >
+                        {item.icon?.trim() ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={item.icon}
+                            alt={item.label}
+                            className="w-6 h-6 object-contain"
+                          />
+                        ) : (
+                          <span className="text-white/70 hover:text-gold text-xs font-medium">
+                            {item.label}
+                          </span>
+                        )}
+                      </Link>
+                    ))
+                : [
+                    { url: content.socialLinks.facebook, icon: content.socialIcons?.facebook, label: "Facebook" },
+                    { url: content.socialLinks.twitter, icon: content.socialIcons?.twitter, label: "Twitter" },
+                    { url: content.socialLinks.instagram, icon: content.socialIcons?.instagram, label: "Instagram" },
+                    { url: content.socialLinks.youtube, icon: content.socialIcons?.youtube, label: "YouTube" },
+                  ]
+                    .filter((item) => item.url?.trim())
+                    .map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={item.label}
+                        className="transition-transform duration-300 hover:scale-125 hover:-translate-y-1"
+                      >
+                        {item.icon?.trim() ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={item.icon}
+                            alt={item.label}
+                            className="w-6 h-6 object-contain"
+                          />
+                        ) : (
+                          <span className="text-white/70 hover:text-gold text-xs font-medium">
+                            {item.label}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
             </div>
           </div>
         </div>

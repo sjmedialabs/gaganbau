@@ -104,6 +104,14 @@ export interface FooterColumn {
   links: FooterLink[]
 }
 
+/** One social link in the footer: custom label, URL, and optional icon image. */
+export interface SocialItem {
+  label: string
+  url: string
+  /** Icon image URL. If empty, only the link is shown (no image, avoids broken icon). */
+  icon: string
+}
+
 export interface FooterContent {
   logo: string
   companyName: string
@@ -111,6 +119,8 @@ export interface FooterContent {
   phone: string
   email: string
   columns: FooterColumn[]
+  /** Custom social links: label, URL, and optional icon per item. Rendered only when URL is set; icon shown only when set. */
+  socialItems?: SocialItem[]
   socialIcons?: {
     facebook: string
     twitter: string
