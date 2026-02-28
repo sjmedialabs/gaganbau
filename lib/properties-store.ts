@@ -1,4 +1,4 @@
-import { getAdminFirestore } from "./firebase-admin"
+import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
 import type { PropertiesContent, Property, GalleryAlbum } from "./types"
 
 const PROPERTIES_DOC = "properties"
@@ -49,6 +49,7 @@ function serializeForFirestore(content: PropertiesContent): Record<string, unkno
 
 export async function getPropertiesContent(): Promise<PropertiesContent> {
   try {
+    if (!isFirebaseConfigured()) return defaultPropertiesContent
     const db = getAdminFirestore()
     const doc = await db.collection("content").doc(PROPERTIES_DOC).get()
 
@@ -65,6 +66,7 @@ export async function getPropertiesContent(): Promise<PropertiesContent> {
 
 export async function savePropertiesContent(content: PropertiesContent): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     await db.collection("content").doc(PROPERTIES_DOC).set(serializeForFirestore(content))
     return true

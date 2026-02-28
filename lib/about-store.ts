@@ -1,4 +1,4 @@
-import { getAdminFirestore } from "./firebase-admin"
+import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
 import type { AboutPageContent } from "./types"
 import { defaultAboutContent } from "./default-about-content"
 
@@ -6,6 +6,7 @@ const ABOUT_DOC = "about"
 
 export async function hasAboutContent(): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     const doc = await db.collection("content").doc(ABOUT_DOC).get()
     return doc.exists
@@ -16,6 +17,7 @@ export async function hasAboutContent(): Promise<boolean> {
 
 export async function getAboutContent(): Promise<AboutPageContent> {
   try {
+    if (!isFirebaseConfigured()) return defaultAboutContent
     const db = getAdminFirestore()
     const doc = await db.collection("content").doc(ABOUT_DOC).get()
 
@@ -39,6 +41,7 @@ export async function getAboutContent(): Promise<AboutPageContent> {
 
 export async function saveAboutContent(content: AboutPageContent): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     const payload = {
       ...content,

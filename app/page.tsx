@@ -10,6 +10,8 @@ import { getBlogPosts } from "@/lib/blog-store"
 import { getAllProperties } from "@/lib/properties-store"
 
 export const dynamic = "force-dynamic"
+/** Use Node.js runtime so Firebase/data fetching work (Edge would 500). */
+export const runtime = "nodejs"
 
 export default async function HomePage() {
   const content = await getHomePageContent()

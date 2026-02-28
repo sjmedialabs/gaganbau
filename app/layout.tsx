@@ -6,6 +6,9 @@ import { Providers } from "@/components/providers"
 import { getHomePageContent } from "@/lib/content-store"
 import "./globals.css"
 
+/** Use Node.js runtime so Firebase Admin and data fetching work (Edge would 500). */
+export const runtime = "nodejs"
+
 // Jost for headings and body text
 const jost = Jost({ 
   subsets: ["latin"],

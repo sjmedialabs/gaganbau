@@ -1,4 +1,4 @@
-import { getAdminFirestore } from "./firebase-admin"
+import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
 import type { HomePageContent } from "./types"
 import { defaultHomeContent } from "./default-content"
 
@@ -55,6 +55,7 @@ function normalizeHomeContent(content: HomePageContent): HomePageContent {
 
 export async function hasHomePageContent(): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     const doc = await db.collection("content").doc(CONTENT_DOC).get()
     return doc.exists
@@ -65,6 +66,7 @@ export async function hasHomePageContent(): Promise<boolean> {
 
 export async function getHomePageContent(): Promise<HomePageContent> {
   try {
+    if (!isFirebaseConfigured()) return normalizeHomeContent(defaultHomeContent)
     const db = getAdminFirestore()
     const doc = await db.collection("content").doc(CONTENT_DOC).get()
 
@@ -90,6 +92,7 @@ export async function getHomePageContent(): Promise<HomePageContent> {
 
 export async function saveHomePageContent(content: HomePageContent): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     const payload = {
       ...content,

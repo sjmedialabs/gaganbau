@@ -1,4 +1,4 @@
-import { getAdminFirestore } from "./firebase-admin"
+import { getAdminFirestore, isFirebaseConfigured } from "./firebase-admin"
 import type { BlogPost, BlogPageHero } from "./types"
 import { defaultBlogPosts } from "./default-blog-posts"
 import { defaultBlogHero } from "./default-blog-hero"
@@ -16,6 +16,7 @@ export type BlogDoc = {
 
 export async function getBlogDoc(): Promise<BlogDoc> {
   try {
+    if (!isFirebaseConfigured()) return { posts: [...defaultBlogPosts], hero: defaultBlogHero }
     const db = getAdminFirestore()
     const snap = await db.collection(CONTENT_COLLECTION).doc(BLOG_DOC).get()
     if (!snap.exists) {
@@ -52,6 +53,7 @@ export async function getBlogPageHero(): Promise<BlogPageHero> {
 
 export async function saveBlogDoc(updates: Partial<BlogDoc>): Promise<boolean> {
   try {
+    if (!isFirebaseConfigured()) return false
     const db = getAdminFirestore()
     const current = await getBlogDoc()
     const payload: BlogDoc = {
