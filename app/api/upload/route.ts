@@ -83,13 +83,7 @@ export async function POST(request: NextRequest) {
     if (!useLocalOnly) {
       try {
         const storage = getAdminStorage()
-        const projectId = process.env.FIREBASE_PROJECT_ID
-        const envBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-        const bucketName =
-          envBucket?.includes("firebasestorage.app") && projectId
-            ? `${projectId}.appspot.com`
-            : (envBucket ?? (projectId ? `${projectId}.appspot.com` : undefined))
-        const bucket = bucketName ? storage.bucket(bucketName) : storage.bucket()
+        const bucket = storage.bucket()
         const storageFile = bucket.file(filePath)
 
         await storageFile.save(buffer, { metadata: { contentType: file.type } })

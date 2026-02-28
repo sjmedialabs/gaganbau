@@ -45,13 +45,7 @@ async function getFirebaseUrl(storagePath: string): Promise<string | null> {
     const { getDownloadURL } = await import("firebase-admin/storage")
     const { getAdminStorage } = await import("@/lib/firebase-admin")
     const storage = getAdminStorage()
-    const projectId = process.env.FIREBASE_PROJECT_ID
-    const envBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    const bucketName =
-      envBucket?.includes("firebasestorage.app") && projectId
-        ? `${projectId}.appspot.com`
-        : (envBucket ?? (projectId ? `${projectId}.appspot.com` : undefined))
-    const bucket = bucketName ? storage.bucket(bucketName) : storage.bucket()
+    const bucket = storage.bucket()
     const file = bucket.file(storagePath)
 
     const [exists] = await file.exists()
