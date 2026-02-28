@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getDownloadURL } from "firebase-admin/storage"
 import { getAdminStorage } from "@/lib/firebase-admin"
+import { isProduction, isServerless, isLocalUploadAllowed } from "@/lib/upload-env"
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 
@@ -19,11 +20,6 @@ const ALLOWED_IMAGE_TYPES = [
 ]
 
 const UPLOADS_DIR = "public/uploads"
-
-/** True when running on Vercel or similar serverless where local files don't persist. */
-function isServerless(): boolean {
-  return process.env.VERCEL === "1" || !!process.env.AWS_LAMBDA_FUNCTION_NAME
-}
 
 async function saveToLocal(buffer: Buffer, filePath: string): Promise<string> {
   const fullPath = path.join(process.cwd(), UPLOADS_DIR, filePath)
@@ -76,15 +72,12 @@ export async function POST(request: NextRequest) {
 
     const useLocalOnly = process.env.UPLOAD_USE_LOCAL === "true"
 
-    // On serverless (Vercel, etc.), local uploads don't persist — files written here won't be
-    // served on the next request. Require Firebase Storage so returned URLs actually work.
-    if (isServerless() && useLocalOnly) {
-      return NextResponse.json(
-        {
-          error: "Local uploads are not supported in this environment. Enable Firebase Storage in your project and remove UPLOAD_USE_LOCAL.",
-        },
-        { status: 503 }
-      )
+    // Require Firebase Storage when local uploads are not allowed (serverless or production).
+    if (useLocalOnly && !isLocalUploadAllowed()) {
+      const message = isServerless()
+        ? "Local uploads are not supported in this environment. Enable Firebase Storage in your project and remove UPLOAD_USE_LOCAL."
+        : "Local uploads are disabled in production so images persist across deploys. Remove UPLOAD_USE_LOCAL and use Firebase Storage (see Firebase Console → Storage)."
+      return NextResponse.json({ error: message }, { status: 503 })
     }
 
     if (!useLocalOnly) {
@@ -124,11 +117,11 @@ export async function POST(request: NextRequest) {
         })
       } catch (firebaseError) {
         if (isBucketNotFound(firebaseError)) {
-          if (isServerless()) {
+          if (isServerless() || isProduction()) {
             return NextResponse.json(
               {
                 error:
-                  "Firebase Storage is not set up. Enable Storage in Firebase Console and ensure your bucket exists. Local uploads do not persist in this environment.",
+                  "Firebase Storage is required. Enable Storage in Firebase Console, create a bucket, and set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY (and optionally NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET). Local uploads do not persist after deploy.",
               },
               { status: 503 }
             )
@@ -157,6 +150,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Local uploads only when explicitly allowed (never in production or serverless)
+    if (!isLocalUploadAllowed()) {
+      return NextResponse.json(
+        {
+          error:
+            "Uploads in production must use Firebase Storage so images persist across deploys. Enable Storage in Firebase Console and ensure FIREBASE_* env vars are set.",
+        },
+        { status: 503 }
+      )
+    }
     try {
       const url = await saveToLocal(buffer, filePath)
       return NextResponse.json({
@@ -171,7 +174,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Local save failed. If deployed on Vercel or similar, set up Firebase Storage and do not use UPLOAD_USE_LOCAL.",
+            "Local save failed. If deployed, set up Firebase Storage and do not use UPLOAD_USE_LOCAL.",
         },
         { status: 503 }
       )
