@@ -5,11 +5,11 @@ export const defaultHomeContent: HomePageContent = {
   header: {
     logo: "/images/logo.png",
     navigation: [
-      { label: "Projects", href: "/projects" },
-      { label: "About", href: "/about" },
-      { label: "Gallery", href: "/gallery" },
-      { label: "Blog", href: "/blog" },
-      { label: "Contact", href: "/contact" },
+      { label: "Projects", href: "/projects", enabled: true },
+      { label: "About", href: "/about", enabled: true },
+      { label: "Gallery", href: "/gallery", enabled: true },
+      { label: "Blog", href: "/blog", enabled: true },
+      { label: "Contact", href: "/contact", enabled: true },
     ],
     languages: [
       { code: "EN", label: "English" },
@@ -183,6 +183,7 @@ export const defaultHomeContent: HomePageContent = {
     ogImage: "/images/hero-bg.png",
     canonicalUrl: "https://gaganbau.de",
     noIndex: false,
+    favicon: "",
   },
   carouselSettings: {
     heroAnimation: "fade",

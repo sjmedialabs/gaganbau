@@ -129,6 +129,8 @@ export interface FooterContent {
 export interface HeaderNav {
   label: string
   href: string
+  /** When false, item is hidden from the header. Default true. */
+  enabled?: boolean
   children?: { label: string; href: string }[]
 }
 
@@ -244,6 +246,8 @@ export interface SEOData {
   ogImage: string
   canonicalUrl: string
   noIndex: boolean
+  /** Favicon URL (optional). When set, used as site icon in browser tab. */
+  favicon?: string
 }
 
 // CRM Types

@@ -36,6 +36,9 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
   const [scrolled, setScrolled] = useState(false)
   const projectsRef = useRef<HTMLDivElement>(null)
 
+  // Only show nav items that are enabled
+  const visibleNavigation = content.navigation.filter((item) => item.enabled !== false)
+
   // Group properties by category
   const categorizedProperties: CategoryPropertiesMap = {
     "on-sale": properties.filter((p) => p.category === "on-sale" && p.isActive),
@@ -164,7 +167,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {content.navigation.map((item) => {
+            {visibleNavigation.map((item) => {
               // Special handling for Projects with dropdown (hover trigger)
               if (item.label === "Projects") {
                 return (
@@ -267,7 +270,7 @@ export function Header({ content, isTransparent = true, properties = [] }: Heade
       {mobileMenuOpen && (
         <div className="lg:hidden bg-navy border-t border-white/10">
           <nav className="px-6 py-4 space-y-2">
-            {content.navigation.map((item) => {
+            {visibleNavigation.map((item) => {
               if (item.label === "Projects") {
                 return (
                   <div key={item.label}>

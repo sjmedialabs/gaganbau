@@ -172,6 +172,17 @@ export default function SEOEditor() {
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <ImageUpload
+                  label="Favicon"
+                  value={seo.favicon ?? ""}
+                  onChange={(url) => setSeo({ ...seo, favicon: url })}
+                  folder="seo"
+                  aspectRatio="square"
+                  helpText="Shown in browser tab. Recommended: square image (e.g. 32×32 or 512×512)."
+                />
+              </div>
+
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>
                   <Label htmlFor="no-index">No Index</Label>
@@ -240,6 +251,14 @@ export default function SEOEditor() {
                   <AlertCircle className="w-4 h-4 text-amber-600" />
                 )}
                 <span className="text-sm">OG Image set</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {(seo.favicon ?? "").trim() ? (
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-amber-600" />
+                )}
+                <span className="text-sm">Favicon set</span>
               </div>
               <div className="flex items-center gap-2">
                 {seo.canonicalUrl ? (

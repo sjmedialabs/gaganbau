@@ -1,16 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Save, Eye, Loader2, Plus, Trash2 } from "lucide-react"
+import { Save, Eye, Loader2, Plus, Trash2, GripVertical } from "lucide-react"
 import { defaultHomeContent } from "@/lib/default-content"
-import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation, BlogSectionConfig } from "@/lib/types"
+import type { ConceptSection, FooterContent, HeaderContent, WhyChooseSection, HomePageContent, CarouselSettings, CarouselAnimation, BlogSectionConfig, HeroSlide, ProjectSlide } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/ImageUpload"
 
@@ -24,8 +26,19 @@ export default function HomePageEditor() {
   const [carouselSettings, setCarouselSettings] = useState<CarouselSettings>(
     defaultHomeContent.carouselSettings || { heroAnimation: "fade", projectsAnimation: "fade", autoPlaySpeed: 6000 }
   )
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultHomeContent.heroSlides)
+  const [projects, setProjects] = useState<ProjectSlide[]>(defaultHomeContent.projects)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab")
+  const validTabs = ["header", "concept", "whychoose", "blog", "hero", "projects", "carousel", "footer"]
+  const [activeTab, setActiveTab] = useState(() =>
+    tabParam && validTabs.includes(tabParam) ? tabParam : "header"
+  )
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) setActiveTab(tabParam)
+  }, [tabParam])
 
   // Fetch content on mount
   useEffect(() => {
@@ -43,6 +56,8 @@ export default function HomePageEditor() {
           if (data.carouselSettings) {
             setCarouselSettings(data.carouselSettings)
           }
+          if (data.heroSlides?.length) setHeroSlides(data.heroSlides)
+          if (data.projects?.length) setProjects(data.projects)
         }
       } catch (error) {
         console.error("Failed to fetch content:", error)
@@ -65,6 +80,8 @@ export default function HomePageEditor() {
         blog,
         footer,
         carouselSettings,
+        heroSlides,
+        projects,
       }
       
       const res = await fetch("/api/content/home", {
@@ -80,9 +97,76 @@ export default function HomePageEditor() {
       }
     } catch (error) {
       toast.error("Failed to save changes")
-    } finally {
-      setSaving(false)
+} finally {
+        setSaving(false)
     }
+  }
+
+  const addSlide = () => {
+    const newSlide: HeroSlide = {
+      id: `hero-${Date.now()}`,
+      title: "New Slide",
+      subtitle: "Enter subtitle here",
+      buttonText: "Learn More",
+      buttonLink: "/",
+      backgroundImage: "",
+      order: heroSlides.length + 1,
+      isActive: true,
+    }
+    setHeroSlides([...heroSlides, newSlide])
+  }
+  const updateSlide = (id: string, updates: Partial<HeroSlide>) => {
+    setHeroSlides(heroSlides.map((s) => (s.id === id ? { ...s, ...updates } : s)))
+  }
+  const deleteSlide = (id: string) => {
+    if (heroSlides.length <= 1) {
+      toast.error("You must have at least one hero slide")
+      return
+    }
+    setHeroSlides(heroSlides.filter((s) => s.id !== id))
+  }
+
+  const addProject = () => {
+    const newProject: ProjectSlide = {
+      id: `project-${Date.now()}`,
+      label: "OUR CONCURRENT PROJECTS(3D)",
+      title: "New Project\nName",
+      description: "Enter project description here.",
+      buttonText: "Explore More",
+      buttonLink: "/projects/new-project",
+      images: [""],
+      order: projects.length + 1,
+      isActive: true,
+    }
+    setProjects([...projects, newProject])
+  }
+  const updateProject = (id: string, updates: Partial<ProjectSlide>) => {
+    setProjects(projects.map((p) => (p.id === id ? { ...p, ...updates } : p)))
+  }
+  const deleteProject = (id: string) => {
+    if (projects.length <= 1) {
+      toast.error("You must have at least one project")
+      return
+    }
+    setProjects(projects.filter((p) => p.id !== id))
+  }
+  const updateProjectImage = (projectId: string, imageIndex: number, value: string) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (!project) return
+    const newImages = [...project.images]
+    if (imageIndex >= newImages.length) newImages.length = imageIndex + 1
+    newImages[imageIndex] = value
+    updateProject(projectId, { images: newImages })
+  }
+  const addProjectImage = (projectId: string) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (!project) return
+    updateProject(projectId, { images: [...project.images, ""] })
+  }
+  const removeProjectImage = (projectId: string, imageIndex: number) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (!project || project.images.length <= 1) return
+    updateProject(projectId, { images: project.images.filter((_, i) => i !== imageIndex) })
   }
 
   if (loading) {
@@ -118,12 +202,14 @@ export default function HomePageEditor() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="header" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-white border">
           <TabsTrigger value="header">Header/Logo</TabsTrigger>
           <TabsTrigger value="concept">Our Concept</TabsTrigger>
           <TabsTrigger value="whychoose">Why Choose</TabsTrigger>
           <TabsTrigger value="blog">Blog Section</TabsTrigger>
+          <TabsTrigger value="hero">Hero Slides</TabsTrigger>
+          <TabsTrigger value="projects">Projects Slider</TabsTrigger>
           <TabsTrigger value="carousel">Carousel Settings</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
@@ -156,11 +242,14 @@ export default function HomePageEditor() {
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Navigation Items</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Order is determined by position (1 = first). Use the arrows to reorder.
+                  Order is determined by position (1 = first). Use the arrows to reorder. Toggle <strong>Enabled</strong> to show or hide an item on the site; disabled items stay in the list but are hidden in the header.
                 </p>
                 <div className="space-y-4">
                   {header.navigation.map((item, index) => (
-                    <div key={`nav-${index}`} className="flex gap-2 md:gap-4 items-center flex-wrap">
+                    <div
+                      key={`nav-${index}`}
+                      className={`flex gap-2 md:gap-4 items-center flex-wrap p-3 rounded-lg border ${item.enabled === false ? "opacity-60 bg-muted/30" : ""}`}
+                    >
                       <span className="text-sm text-muted-foreground w-6 shrink-0">{index + 1}.</span>
                       <Input
                         value={item.label}
@@ -182,7 +271,20 @@ export default function HomePageEditor() {
                         placeholder="Enter path"
                         className="flex-1 min-w-[100px]"
                       />
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`nav-enabled-${index}`} className="text-xs text-muted-foreground whitespace-nowrap">Enabled</Label>
+                          <Switch
+                            id={`nav-enabled-${index}`}
+                            checked={item.enabled !== false}
+                            onCheckedChange={(checked) => {
+                              const newNav = [...header.navigation]
+                              newNav[index] = { ...item, enabled: checked }
+                              setHeader({ ...header, navigation: newNav })
+                            }}
+                            title={item.enabled === false ? "Enable" : "Disable"}
+                          />
+                        </div>
                         <Button
                           type="button"
                           variant="ghost"
@@ -237,7 +339,7 @@ export default function HomePageEditor() {
                   onClick={() =>
                     setHeader({
                       ...header,
-                      navigation: [...header.navigation, { label: "New link", href: "/" }],
+                      navigation: [...header.navigation, { label: "New link", href: "/", enabled: true }],
                     })
                   }
                 >
@@ -462,6 +564,175 @@ export default function HomePageEditor() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Hero Slides */}
+        <TabsContent value="hero" className="space-y-4">
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={addSlide}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Slide
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {heroSlides
+              .sort((a, b) => a.order - b.order)
+              .map((slide, index) => (
+                <Card key={slide.id} className={!slide.isActive ? "opacity-60" : ""}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
+                        <CardTitle className="text-lg">Slide {index + 1}</CardTitle>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`active-${slide.id}`} className="text-sm">Active</Label>
+                          <Switch
+                            id={`active-${slide.id}`}
+                            checked={slide.isActive}
+                            onCheckedChange={(checked) => updateSlide(slide.id, { isActive: checked })}
+                          />
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => deleteSlide(slide.id)} className="text-destructive hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <ImageUpload
+                        label="Background Image"
+                        value={slide.backgroundImage}
+                        onChange={(url) => updateSlide(slide.id, { backgroundImage: url })}
+                        folder="hero"
+                        aspectRatio="video"
+                      />
+                      <div className="md:col-span-2 space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Title</Label>
+                            <Input value={slide.title} onChange={(e) => updateSlide(slide.id, { title: e.target.value })} placeholder="Enter title" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Subtitle</Label>
+                            <Input value={slide.subtitle} onChange={(e) => updateSlide(slide.id, { subtitle: e.target.value })} placeholder="Enter subtitle" />
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Button Text</Label>
+                            <Input value={slide.buttonText} onChange={(e) => updateSlide(slide.id, { buttonText: e.target.value })} placeholder="Enter button text" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Button Link</Label>
+                            <Input value={slide.buttonLink} onChange={(e) => updateSlide(slide.id, { buttonLink: e.target.value })} placeholder="Enter button link" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Order</Label>
+                          <Input type="number" value={slide.order} onChange={(e) => updateSlide(slide.id, { order: Number.parseInt(e.target.value) || 1 })} min={1} className="w-24" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </TabsContent>
+
+        {/* Projects Slider */}
+        <TabsContent value="projects" className="space-y-4">
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={addProject}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Project
+            </Button>
+          </div>
+          <div className="space-y-6">
+            {projects
+              .sort((a, b) => a.order - b.order)
+              .map((project, index) => (
+                <Card key={project.id} className={!project.isActive ? "opacity-60" : ""}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Project {index + 1}: {project.title.split("\n")[0]}</CardTitle>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`active-${project.id}`} className="text-sm">Active</Label>
+                          <Switch
+                            id={`active-${project.id}`}
+                            checked={project.isActive}
+                            onCheckedChange={(checked) => updateProject(project.id, { isActive: checked })}
+                          />
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => deleteProject(project.id)} className="text-destructive hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Label</Label>
+                        <Input value={project.label} onChange={(e) => updateProject(project.id, { label: e.target.value })} placeholder="Enter section title" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Order</Label>
+                        <Input type="number" value={project.order} onChange={(e) => updateProject(project.id, { order: Number.parseInt(e.target.value) || 1 })} min={1} className="w-24" />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Title (use \n for line break)</Label>
+                        <Textarea value={project.title} onChange={(e) => updateProject(project.id, { title: e.target.value })} placeholder="Enter project names" rows={2} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea value={project.description} onChange={(e) => updateProject(project.id, { description: e.target.value })} placeholder="Enter description" rows={2} />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Button Text</Label>
+                        <Input value={project.buttonText} onChange={(e) => updateProject(project.id, { buttonText: e.target.value })} placeholder="Enter button text" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Button Link</Label>
+                        <Input value={project.buttonLink} onChange={(e) => updateProject(project.id, { buttonLink: e.target.value })} placeholder="Enter button link" />
+                      </div>
+                    </div>
+                    <div className="border-t pt-6">
+                      <h3 className="font-semibold mb-4">Project Images (at least 1)</h3>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {project.images.map((_, imageIndex) => (
+                          <div key={imageIndex} className="relative">
+                            <ImageUpload
+                              label={`Image ${imageIndex + 1}`}
+                              value={project.images[imageIndex] || ""}
+                              onChange={(url) => updateProjectImage(project.id, imageIndex, url)}
+                              folder="projects"
+                              aspectRatio="video"
+                            />
+                            {project.images.length > 1 && (
+                              <Button type="button" variant="ghost" size="icon" className="absolute top-0 right-0 h-8 w-8 text-destructive hover:text-destructive" onClick={() => removeProjectImage(project.id, imageIndex)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => addProjectImage(project.id)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add image
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
         </TabsContent>
 
         {/* Carousel Settings */}

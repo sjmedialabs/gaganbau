@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Jost, Cormorant_Garamond } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "@/components/providers"
+import { getHomePageContent } from "@/lib/content-store"
 import "./globals.css"
 
 // Jost for headings and body text
@@ -20,27 +21,33 @@ const cormorant = Cormorant_Garamond({
   style: ["normal"],
 });
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: 'Gagan Bau GmbH - Rising With Vision',
   description: 'Luxury living where comfort meets timeless style. Discover premium residential developments by Gagan Bau GmbH.',
   generator: 'v0.app',
   icons: {
     icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
+      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
     ],
     apple: '/apple-icon.png',
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const content = await getHomePageContent()
+    const seo = content?.seo
+    const favicon = (seo?.favicon ?? '').trim()
+    if (!favicon) return defaultMetadata
+    return {
+      ...defaultMetadata,
+      icons: { icon: favicon, apple: favicon },
+    }
+  } catch {
+    return defaultMetadata
+  }
 }
 
 export default function RootLayout({

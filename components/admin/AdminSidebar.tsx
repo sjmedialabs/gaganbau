@@ -7,7 +7,6 @@ import { useSimpleAuth } from "@/lib/simple-auth"
 import { useLanguage } from "@/lib/language-context"
 import {
   Home,
-  ImageIcon,
   FileText,
   Settings,
   Users,
@@ -22,8 +21,6 @@ const navItems = [
   { href: "/admin", labelKey: "admin.dashboard", icon: LayoutDashboard },
   { href: "/admin/home-page", labelKey: "admin.homePage", icon: Home },
   { href: "/admin/about-page", labelKey: "admin.aboutPage", icon: FileText },
-  { href: "/admin/hero-slides", labelKey: "admin.heroSlides", icon: ImageIcon },
-  { href: "/admin/projects", labelKey: "admin.projectsSlider", icon: FileText },
   { href: "/admin/properties/list", labelKey: "admin.properties", icon: Building2 },
   { href: "/admin/gallery", labelKey: "admin.gallery", icon: Images },
   { href: "/admin/blog", labelKey: "admin.blog", icon: FileText },
