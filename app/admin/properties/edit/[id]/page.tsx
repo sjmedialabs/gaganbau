@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/ImageUpload"
-import type { Property, PropertyCategory, PropertyStatus, ConstructionPhase, PropertyAmenity, PropertySpecItem } from "@/lib/types"
+import type { Property, PropertyCategory, PropertyStatus, ConstructionPhase, PlanSubCategory, PropertyAmenity, PropertySpecItem } from "@/lib/types"
 
 /** Build heroSpecifications and keySpecifications arrays from legacy specifications object. */
 function migrateLegacySpecs(data: Property): void {
@@ -57,6 +57,21 @@ function migrateLegacySpecs(data: Property): void {
   }
   if (!Array.isArray(data.keySpecifications) || data.keySpecifications.length === 0) {
     data.keySpecifications = [...items]
+  }
+}
+
+/** Migrate legacy construction phases (images only) to subCategories so admin can edit them. */
+function migrateLegacyPhases(data: Property): void {
+  const phases = data.constructionPhases
+  if (!Array.isArray(phases)) return
+  for (const phase of phases) {
+    if (phase.subCategories && phase.subCategories.length > 0) continue
+    const imgs = (phase.images && phase.images.length > 0) ? phase.images.filter(Boolean) : phase.image ? [phase.image] : []
+    if (imgs.length > 0) {
+      ;(phase as ConstructionPhase).subCategories = [
+        { id: `legacy-${phase.id}`, title: phase.title || "Plans", images: imgs },
+      ]
+    }
   }
 }
 
@@ -85,6 +100,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             if (!Array.isArray(data.heroSpecifications)) data.heroSpecifications = []
             if (!Array.isArray(data.keySpecifications)) data.keySpecifications = []
             migrateLegacySpecs(data)
+            migrateLegacyPhases(data)
           }
           setProperty(data)
         } else {
@@ -145,15 +161,20 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  // Project plan (construction phase) handlers
-  const getPlanImages = (p: ConstructionPhase): string[] =>
-    (p.images && p.images.length > 0) ? p.images : (p.image ? [p.image] : [""])
+  // Project plan (construction phase) and sub-category handlers
+  const getSubCategories = (p: ConstructionPhase): PlanSubCategory[] => {
+    if (p.subCategories && p.subCategories.length > 0) return p.subCategories
+    const imgs = (p.images && p.images.length > 0) ? p.images : (p.image ? [p.image] : [])
+    if (imgs.length === 0) return []
+    return [{ id: `legacy-${p.id}`, title: "Plans", images: imgs.length ? imgs : [""] }]
+  }
 
   const addConstructionPhase = () => {
+    const subId = `sub-${Date.now()}`
     const newPhase: ConstructionPhase = {
       id: `phase-${Date.now()}`,
       title: "",
-      images: [""],
+      subCategories: [{ id: subId, title: "", images: [""] }],
       description: "",
     }
     updateProperty({
@@ -169,26 +190,57 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     })
   }
 
-  const updatePlanImage = (phaseId: string, imageIndex: number, url: string) => {
+  const addSubCategory = (phaseId: string) => {
     const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
     if (!phase) return
-    const images = [...getPlanImages(phase)]
+    const subs = getSubCategories(phase)
+    const newSub: PlanSubCategory = { id: `sub-${Date.now()}`, title: "", images: [""] }
+    updateConstructionPhase(phaseId, { subCategories: [...subs, newSub] })
+  }
+
+  const updateSubCategory = (phaseId: string, subId: string, updates: Partial<PlanSubCategory>) => {
+    const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    const subs = getSubCategories(phase).map((s) => (s.id === subId ? { ...s, ...updates } : s))
+    updateConstructionPhase(phaseId, { subCategories: subs })
+  }
+
+  const removeSubCategory = (phaseId: string, subId: string) => {
+    const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    const subs = getSubCategories(phase).filter((s) => s.id !== subId)
+    updateConstructionPhase(phaseId, { subCategories: subs.length ? subs : undefined, images: subs.length ? undefined : [""] })
+  }
+
+  const getSubImages = (phase: ConstructionPhase, sub: PlanSubCategory): string[] =>
+    (sub.images && sub.images.length > 0) ? sub.images : [""]
+
+  const updateSubCategoryImage = (phaseId: string, subId: string, imageIndex: number, url: string) => {
+    const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
+    if (!phase) return
+    const sub = getSubCategories(phase).find((s) => s.id === subId)
+    if (!sub) return
+    const images = [...getSubImages(phase, sub)]
     if (imageIndex >= images.length) images.length = imageIndex + 1
     images[imageIndex] = url
-    updateConstructionPhase(phaseId, { images })
+    updateSubCategory(phaseId, subId, { images })
   }
 
-  const addPlanImage = (phaseId: string) => {
+  const addSubCategoryImage = (phaseId: string, subId: string) => {
     const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
     if (!phase) return
-    updateConstructionPhase(phaseId, { images: [...getPlanImages(phase), ""] })
+    const sub = getSubCategories(phase).find((s) => s.id === subId)
+    if (!sub) return
+    updateSubCategory(phaseId, subId, { images: [...getSubImages(phase, sub), ""] })
   }
 
-  const removePlanImage = (phaseId: string, imageIndex: number) => {
+  const removeSubCategoryImage = (phaseId: string, subId: string, imageIndex: number) => {
     const phase = property?.constructionPhases?.find((p) => p.id === phaseId)
     if (!phase) return
-    const images = getPlanImages(phase).filter((_, i) => i !== imageIndex)
-    updateConstructionPhase(phaseId, { images: images.length ? images : [""] })
+    const sub = getSubCategories(phase).find((s) => s.id === subId)
+    if (!sub) return
+    const images = getSubImages(phase, sub).filter((_, i) => i !== imageIndex)
+    updateSubCategory(phaseId, subId, { images: images.length ? images : [""] })
   }
 
   const removeConstructionPhase = (phaseId: string) => {
@@ -917,7 +969,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           <Card>
             <CardHeader>
               <CardTitle>Project Plans</CardTitle>
-              <CardDescription>Add multiple project plans. Each plan has a type (title), description, and can have multiple images. Use Next/Prev on the website to cycle through images in the same plan.</CardDescription>
+              <CardDescription>Add plan types (e.g. 1 Room, 2 Rooms). Each plan type has sub-categories; each sub-category has a title and multiple images. On the website, sub-categories are shown in a dropdown.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -926,7 +978,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   id="constructionPhasesTitle"
                   value={property.constructionPhasesTitle}
                   onChange={(e) => updateProperty({ constructionPhasesTitle: e.target.value })}
-                  placeholder="Enter construction section title"
+                  placeholder="Enter section title (e.g. Project Plans)"
                 />
               </div>
 
@@ -942,71 +994,96 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         className="text-destructive"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Remove
+                        Remove plan type
                       </Button>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Plan Type *</Label>
-                        <Input
-                          value={phase.title}
-                          onChange={(e) => updateConstructionPhase(phase.id, { title: e.target.value })}
-                          placeholder="Enter plan type"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          This will appear as a tab on the property page
-                        </p>
-                      </div>
+                    <div className="space-y-2">
+                      <Label>Plan Type name *</Label>
+                      <Input
+                        value={phase.title}
+                        onChange={(e) => updateConstructionPhase(phase.id, { title: e.target.value })}
+                        placeholder="Enter plan type (e.g. 1 Room, 2 Rooms)"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Groups sub-categories in the dropdown on the website
+                      </p>
+                    </div>
 
-                      <div className="space-y-2">
-                        <Label>Images (multiple per plan)</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {getPlanImages(phase).map((url, imgIdx) => (
-                            <div key={imgIdx} className="relative">
-                              <ImageUpload
-                                label={`Image ${imgIdx + 1}`}
-                                value={url}
-                                onChange={(u) => updatePlanImage(phase.id, imgIdx, u)}
-                                folder="properties/phases"
-                                aspectRatio="video"
-                              />
-                              {getPlanImages(phase).length > 1 && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="absolute top-0 right-0 h-8 w-8 text-destructive"
-                                  onClick={() => removePlanImage(phase.id, imgIdx)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
+                    {/* Sub-categories */}
+                    <div className="space-y-3">
+                      <Label>Sub-categories (dropdown options)</Label>
+                      {getSubCategories(phase).map((sub) => (
+                        <div key={sub.id} className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <Input
+                              value={sub.title}
+                              onChange={(e) => updateSubCategory(phase.id, sub.id, { title: e.target.value })}
+                              placeholder="Enter sub-category name"
+                              className="max-w-[280px]"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeSubCategory(phase.id, sub.id)}
+                              className="text-destructive shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Remove
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {getSubImages(phase, sub).map((url, imgIdx) => (
+                              <div key={imgIdx} className="relative">
+                                <ImageUpload
+                                  label={`Image ${imgIdx + 1}`}
+                                  value={url}
+                                  onChange={(u) => updateSubCategoryImage(phase.id, sub.id, imgIdx, u)}
+                                  folder="properties/phases"
+                                  aspectRatio="video"
+                                />
+                                {getSubImages(phase, sub).length > 1 && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-0 right-0 h-8 w-8 text-destructive"
+                                    onClick={() => removeSubCategoryImage(phase.id, sub.id, imgIdx)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <Button type="button" variant="outline" size="sm" onClick={() => addSubCategoryImage(phase.id, sub.id)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add image
+                          </Button>
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={() => addPlanImage(phase.id)}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add image
-                        </Button>
-                      </div>
+                      ))}
+                      <Button type="button" variant="outline" size="sm" onClick={() => addSubCategory(phase.id)} className="border-dashed">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add sub-category
+                      </Button>
+                    </div>
 
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
-                          value={phase.description}
-                          onChange={(e) => updateConstructionPhase(phase.id, { description: e.target.value })}
-                          placeholder="Enter plan description"
-                          rows={3}
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label>Description (optional)</Label>
+                      <Textarea
+                        value={phase.description ?? ""}
+                        onChange={(e) => updateConstructionPhase(phase.id, { description: e.target.value })}
+                        placeholder="Enter plan description"
+                        rows={2}
+                      />
                     </div>
                   </div>
                 ))}
 
                 <Button variant="outline" onClick={addConstructionPhase} className="w-full border-dashed bg-transparent">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Project Plan
+                  Add plan type
                 </Button>
               </div>
             </CardContent>

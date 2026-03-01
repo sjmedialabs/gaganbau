@@ -297,12 +297,22 @@ export interface PropertyExpert {
   image: string
 }
 
-export interface ConstructionPhase {
+/** Sub-category under a plan type (e.g. "Layout A" under "1 Room"); has multiple images. */
+export interface PlanSubCategory {
   id: string
   title: string
-  /** Multiple images per plan. When saving, always use images[]. Legacy: image (single) is normalized to images on read. */
+  images: string[]
+}
+
+export interface ConstructionPhase {
+  id: string
+  /** Plan type label (e.g. "1 Room", "2 Rooms"). Shown as dropdown group on the website. */
+  title: string
+  /** Sub-categories for this plan type. Each has a title and multiple images. Shown as dropdown options. */
+  subCategories?: PlanSubCategory[]
+  /** Multiple images per plan. Legacy: when subCategories is empty, used as single implicit sub-category. */
   images?: string[]
-  /** @deprecated Use images[] instead. Normalized to images when present. */
+  /** @deprecated Use images[] or subCategories[].images instead. */
   image?: string
   description?: string
 }
